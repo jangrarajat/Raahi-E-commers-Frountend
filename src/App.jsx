@@ -4,6 +4,7 @@ import './App.css'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './page/Home'
+import ProductPage from './page/ProductPage'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -14,7 +15,8 @@ function App() {
 
 
       <Routes>
-        <Route path='/' element={<> <Navbar /><Home/> <Footer /></>} />
+        <Route path='/' element={<> <Navbar /><Home /> <Footer /></>} />
+        <Route path="/product/:id" element={<><Navbar /><ProductPage/><Footer /></>} />
       </Routes>
 
     </>

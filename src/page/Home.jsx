@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 
 function Home() {
   const ladiesHighlights = [
@@ -33,9 +35,11 @@ function Home() {
         <div className="text-white">
           <h1 className="text-4xl md:text-5xl font-bold">Style That Speaks</h1>
           <p className="mt-4 text-lg md:text-xl">Discover the latest fashion</p>
-          <button className="bg-white text-black w-40 h-14 mt-4 hover:scale-105 duration-300">
-            Shop Now
-          </button>
+          <Link to='/product/all'>
+            <button className="bg-white text-black w-40 h-14 mt-4 hover:scale-105 duration-300">
+              Shop Now
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -88,8 +92,9 @@ function Home() {
             <div
               key={i}
               className="w-full md:w-1/3 h-[70vh] bg-cover bg-center cursor-pointer rounded"
-              style={{ backgroundImage: `url('${URL}')` }}
-            ></div>
+              style={{ backgroundImage: `url('${URL}')` }} >
+
+            </div>
           ))}
         </div>
       </div>
