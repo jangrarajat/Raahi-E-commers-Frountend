@@ -85,10 +85,15 @@ function ProductPage() {
                                 <div className=" w-full flex  justify-between items-center py-4 pr-2">
                                     <p className="mt-2 font-bold text-lg uppercase">₹{item.price}</p>
 
-                                 <div className=" flex gap-4 items-center">
-                                       <Heart size={15}/>
-                                    <ShoppingCart size={15} /> 
-                                 </div>
+                                    <div className=" flex gap-1 items-center">
+                                        <button className=" uppercase flex items-center  border border-black px-1 py-1 md:px-2 md:py-2 ">
+                                            <Heart size={15} />
+                                        </button>
+                                        <button className=" uppercase flex items-center gap-1 md:gap-3 border border-black px-1 md:px-2 md:py-1">
+                                            Add
+                                            <ShoppingCart size={15} />
+                                        </button>
+                                    </div>
 
                                 </div>
                             </div>
