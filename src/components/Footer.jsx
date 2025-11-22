@@ -1,54 +1,69 @@
-import React from 'react'
-import { Instagram } from 'lucide-react'
+import React from "react";
+import { Instagram } from "lucide-react";
+
 function Footer() {
-    return (
-        <div className='w-full min-h-72  relative '>
-            <div className='w-full min-h-72 gap-10 flex flex-col md:items-center md:flex-row  justify-between   '>
-                <ul className='w-full h-full   flex flex-col items-start justify-center gap-1 mx-5 mb-5'>
-                    <b className=' mb-2'>Shop</b>
-                    <a href="#" className=' hover:underline uppercase '>Ladies</a>
-                    <a href="#" className=' hover:underline uppercase '>Man</a>
-                    <a href="#" className=' hover:underline uppercase '>Kids</a>
-                    <a href="#" className=' hover:underline uppercase '>Accessories</a>
-                </ul>
-                <ul className='w-full h-full   flex flex-col items-start justify-center gap-1 mx-5 mb-5'>
-                    <b className=' mb-2'>Corporate Info</b>
-                    <a href="#" className=' hover:underline uppercase '>  Career at H&M</a>
-                    <a href="#" className=' hover:underline uppercase '>About R&M group</a>
-                    <a href="#" className=' hover:underline uppercase '>Sustainability H&M Group</a>
-                    <a href="#" className=' hover:underline uppercase '>Press</a>
-                </ul>
-                <ul className='w-full h-full   flex flex-col items-start justify-center gap-1 mx-5 mb-5'>
-                    <b className=' mb-2'>Help</b>
-                    <a href="#" className=' hover:underline uppercase '>Customer Service</a>
-                    <a href="#" className=' hover:underline uppercase '>Legal & privacy</a>
-                    <a href="#" className=' hover:underline uppercase '>Contact</a>
-                    <a href="#" className=' hover:underline uppercase '>Secure shopping</a>
-                </ul>
-                <ul className='w-full h-full   flex flex-col items-start justify-center gap-1 mx-5 mb-5'>
-                    <b className=' mb-2'>Other</b>
-                    <a href="#" className=' hover:underline uppercase '>Settings</a>
-                    <a href="#" className=' hover:underline uppercase '>About</a>
-                    <a href="#" className=' hover:underline uppercase '>Contect</a>
-                    <a href="#" className=' hover:underline uppercase '>Readme More</a>
-                </ul>
-            </div>
-            <div className='h-20 w-full'>
-                <div >
-                    <img src="https://res.cloudinary.com/drrj8rl9n/image/upload/v1763724939/Gemini_Generated_Image_9y17m59y17m59y17_aunkz4.jpg" alt="logo" className='w-20' />
-                </div>
-                <div className=' flex md:flex-row flex-col justify-between px-5 mb-5 pb-5' >
-                    <p>
-                        The content of this site is copyright-protected and is the property of R & M Hennes & Mauritz AB.
-                    </p>
-                    <ul className=' flex my-4'>
-                        <a href=""><Instagram /></a>
-                        <a href=""></a>
-                    </ul>
-                </div>
-            </div>
+  return (
+    <div className="w-full bg-gray-100 mt-10 overflow-x-hidden">
+      
+      {/* Top Grid */}
+      <div className="w-full flex flex-col md:flex-row justify-between px-6 md:px-16 py-10 gap-10">
+        
+        <ul className="flex flex-col gap-2">
+          <b className="mb-2 uppercase">Shop</b>
+          <a className="hover:underline uppercase">Ladies</a>
+          <a className="hover:underline uppercase">Man</a>
+          <a className="hover:underline uppercase">Kids</a>
+          <a className="hover:underline uppercase">Accessories</a>
+        </ul>
+
+        <ul className="flex flex-col gap-2">
+          <b className="mb-2 uppercase">Corporate Info</b>
+          <a className="hover:underline uppercase">Career at H&M</a>
+          <a className="hover:underline uppercase">About R&M group</a>
+          <a className="hover:underline uppercase">Sustainability H&M Group</a>
+          <a className="hover:underline uppercase">Press</a>
+        </ul>
+
+        <ul className="flex flex-col gap-2">
+          <b className="mb-2 uppercase">Help</b>
+          <a className="hover:underline uppercase">Customer Service</a>
+          <a className="hover:underline uppercase">Legal & privacy</a>
+          <a className="hover:underline uppercase">Contact</a>
+          <a className="hover:underline uppercase">Secure shopping</a>
+        </ul>
+
+        <ul className="flex flex-col gap-2">
+          <b className="mb-2 uppercase">Other</b>
+          <a className="hover:underline uppercase">Settings</a>
+          <a className="hover:underline uppercase">About</a>
+          <a className="hover:underline uppercase">Contact</a>
+          <a className="hover:underline uppercase">Readme More</a>
+        </ul>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="w-full px-6 md:px-16 pb-10">
+        <img
+          src="https://res.cloudinary.com/drrj8rl9n/image/upload/v1763724939/Gemini_Generated_Image_9y17m59y17m59y17_aunkz4.jpg"
+          alt="logo"
+          className="w-20 mb-5"
+        />
+
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+          <p className="text-sm md:text-base">
+            The content of this site is copyright-protected and is the property
+            of R & M Hennes & Mauritz AB.
+          </p>
+
+          <div className="flex gap-4">
+            <a href="#">
+              <Instagram />
+            </a>
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  );
 }
 
-export default Footer
+export default Footer;
