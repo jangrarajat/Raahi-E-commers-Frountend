@@ -67,12 +67,12 @@ function ProductPage() {
 
 
             {/* PRODUCT GRID */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 ">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 ">
 
                 {products.map((item) => (
                     <div key={item._id} className="w-full  mb-5  shadow-md ">
                         <div
-                            className="w-full h-80 md:h-96 bg-cover bg-center rounded"
+                            className="w-full h-80 md:h-[450px] bg-cover bg-center rounded"
                             style={{ backgroundImage: `url('${item.imageUrl}')` }}
                         ></div>
 
