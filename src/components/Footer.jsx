@@ -52,7 +52,7 @@ function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
           <p className="text-sm md:text-base">
             The content of this site is copyright-protected and is the property
-            of R & M Hennes & Mauritz AB.
+            of R & M .
           </p>
 
           <div className="flex gap-4">
