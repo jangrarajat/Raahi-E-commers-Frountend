@@ -5,11 +5,12 @@ import Loader from "../components/Loader";
 import Oops from "../components/Oops";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useShop } from "../context/ShopContext";
+import { useAuth } from "../context/AuthContext";
 
 function ProductPage() {
     const { id } = useParams(); // URL se ID ayegi (ladies, man, etc.)
     const { addToCart, toggleLike, wishlist } = useShop();
-
+    const { catProduct, setCatProduct } = useAuth()
     const [products, setProducts] = useState([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -74,9 +75,12 @@ function ProductPage() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [hasNextPage, loading]);
 
+    useEffect(() => {
+        setCatProduct(products)
+    }, [products])
 
     // Check helper
-    const isLiked = (prodId) => wishlist.some((item) => item._id === prodId || item.productId === prodId);
+    // const isLiked = (prodId) => wishlist.some((item) => item._id === prodId || item.productId === prodId);
 
     return (
         <div className="w-full min-h-screen bg-white ">
@@ -119,8 +123,8 @@ function ProductPage() {
                                         >
                                             <Heart
                                                 size={15}
-                                                fill={isLiked(item._id) ? "red" : "none"}
-                                                color={isLiked(item._id) ? "red" : "black"}
+                                                // fill={isLiked(item._id) ? "red" : "none"}
+                                                // color={isLiked(item._id) ? "red" : "black"}
                                             />
                                         </button>
                                         <button

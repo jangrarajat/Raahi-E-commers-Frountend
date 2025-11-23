@@ -1,86 +1,77 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import API from '../api/axios'; // Humara API setup
-import { useShop } from '../context/ShopContext';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
+
 import Loader from '../components/Loader';
+import { getProductDetails } from '../api/productDietaild';
+import { Heart } from 'lucide-react';
 
 function SingleProduct() {
     const { id } = useParams();
-    const { addToCart, toggleLike, wishlist } = useShop();
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [mainProduct, setMainProduct] = useState(null)
+    const size = ["s", "m", "l", "xl ", "xxl"]
 
-    // Fetch Single Product
+    async function getDetail() {
+        const productDetaild = await getProductDetails(id)
+        console.log("baby", productDetaild.data.findProduct)
+        setMainProduct(productDetaild.data.findProduct)
+
+    }
+
     useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                // Endpoint check krna: /api/product/single/:id (Backend ke hisab se)
-                const { data } = await API.get(`/api/product/${id}`); 
-                setProduct(data.product); // Backend response structure match krna
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching product", error);
-                setLoading(false);
-            }
-        };
-        fetchProduct();
+        getDetail()
     }, [id]);
 
-    if (loading) return <div className="mt-20"><Loader /></div>;
-    if (!product) return <div className="mt-20 text-center">Product Not Found</div>;
 
-    const isLiked = wishlist.some((item) => item._id === product._id);
 
     return (
-        <div className="w-full min-h-screen bg-white pt-24 px-4 md:px-20">
-            <div className="flex flex-col md:flex-row gap-10">
-                
-                {/* Left: Image */}
-                <div className="w-full md:w-1/2 h-[500px]">
-                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover rounded-lg shadow-md" />
-                </div>
+        <div className="w-full min-h-screen   ">
+            {
+                mainProduct !== null ? (
+                    <div className='w-full min-h-[70vh] flex flex-col md:flex-row '>
+                        <div className='md:h-full md:w-[50%] flex  justify-center items-center '>
 
-                {/* Right: Details */}
-                <div className="w-full md:w-1/2 flex flex-col gap-5">
-                    <h1 className="text-4xl font-bold uppercase">{product.name}</h1>
-                    <p className="text-gray-600">{product.descraption}</p> {/* description ki spelling check krna */}
-                    <h2 className="text-3xl font-semibold">₹{product.price}</h2>
+                            <img src={mainProduct.imageUrl} className='md:h-[80vh] ' alt="" />
 
-                    {/* Ratings (Fake for design) */}
-                    <div className="flex items-center gap-1 text-yellow-500">
-                        <Star fill="currentColor" size={20} />
-                        <Star fill="currentColor" size={20} />
-                        <Star fill="currentColor" size={20} />
-                        <Star fill="currentColor" size={20} />
-                        <span className="text-gray-400 text-sm ml-2">(120 Reviews)</span>
+                        </div>
+                        <div className='md:h-[100%] md:w-[50%]  '>
+                            <div className='min-h-fit md:h-[80vh] mt-3 w-full flex flex-col px-3  justify-center items-start '>
+                                <h1 className=' uppercase  w-full md:w-[60%] flex justify-between text-2xl'>
+                                    {mainProduct.name}
+                                    <Heart />
+                                </h1>
+                                <p className=' uppercase text-sm font-mono'>
+                                    {mainProduct.descraption}
+                                </p>
+                                <p className=' uppercase text-sm  '>
+                                    <b>Rs.</b>{mainProduct.price}
+                                </p>
+
+                                <h1 className=' uppercase mt-4'>
+                                   Select size
+                                </h1>
+                                <div className='w-fit gap-3 my-2 h-fit grid  grid-cols-6 '>
+                                    {size.map((siz, i) => (
+                                       
+                                            <div key={i} className=' border border-black w-5 h-5 flex justify-center items-center p-6 md:px-10  hover:bg-black hover:text-white' >
+                                                <h1 className=' uppercase'>{siz}</h1>
+                                            </div>
+                                      
+                                    ))}
+                                </div>
+
+                                 <div className='w-full md:w-[63%] '>
+                                   <button className=' py-6 uppercase bg-black text-white w-full'>
+                                    add
+                                   </button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+                ) : null
+            }
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-4 mt-5">
-                        <button 
-                            onClick={() => addToCart(product._id)}
-                            className="flex-1 bg-black text-white py-4 uppercase font-bold hover:bg-gray-800 transition flex justify-center gap-2">
-                            Add to Cart <ShoppingCart />
-                        </button>
-                        <button 
-                            onClick={() => toggleLike(product._id)}
-                            className="border-2 border-gray-300 p-4 rounded hover:bg-gray-100 transition">
-                            <Heart 
-                                fill={isLiked ? "red" : "none"} 
-                                color={isLiked ? "red" : "black"} 
-                            />
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Related Products Section (Placeholder) */}
-            <div className="mt-20">
-                <h3 className="text-2xl font-serif uppercase border-b pb-2 mb-5">Related Products</h3>
-                <p className="text-gray-400">Related products will appear here...</p>
-                {/* Yahan tum ProductPage wala grid component reuse kar sakte ho filter laga ke */}
-            </div>
         </div>
     );
 }

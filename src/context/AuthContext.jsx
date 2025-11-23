@@ -6,15 +6,16 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   // 2. State: Abhi user 'null' hai matlab koi login nahi hai
   const [user, setUser] = useState(null);
+  const  [catProduct , setCatProduct] = useState([])
+ 
 
-  // --- FAKE LOGIN FUNCTION ---
-  // (Asli app me hum yahan API call karte, abhi bas data set kar rahe hain)
+
+
   const login = (email, password) => {
-    // Hum maan lete hain login successful ho gaya
-    // Aur hum ek nakli user data save kar dete hain
+  
     const dummyUser = {
       name: "Rajat Jangra",
-      email: email, // Jo email aayi wahi save kar li
+      email: email, 
       role: "admin"
     };
 
@@ -29,9 +30,8 @@ export const AuthProvider = ({ children }) => {
     console.log("User Logout ho gaya");
   };
 
-  // 3. Value: Ye cheezein puri app me available hongi
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout , catProduct, setCatProduct }}>
       {children}
     </AuthContext.Provider>
   );
