@@ -1,60 +1,41 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import API from "../api/axios";
+import React, { createContext, useContext, useState } from "react";
 
+// 1. Context Create kiya (Dabba banaya)
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  // 2. State: Abhi user 'null' hai matlab koi login nahi hai
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  // App load hone par check karo agar user pehle se login hai (Optional - agr 'me' endpoint ho)
-  useEffect(() => {
-    // Abhi ke liye hum assume krte h ki page refresh pr user state reset hogi
-    // Real app me yahan /api/user/me call krke user verify krte hain
-    setLoading(false);
-  }, []);
+  // --- FAKE LOGIN FUNCTION ---
+  // (Asli app me hum yahan API call karte, abhi bas data set kar rahe hain)
+  const login = (email, password) => {
+    // Hum maan lete hain login successful ho gaya
+    // Aur hum ek nakli user data save kar dete hain
+    const dummyUser = {
+      name: "Rajat Jangra",
+      email: email, // Jo email aayi wahi save kar li
+      role: "admin"
+    };
 
-  // --- REGISTER ---
-  const register = async (formData) => {
-    try {
-      const { data } = await API.post("/api/user/registration", formData);
-      if (data.success) {
-        setUser(data.user); 
-        return { success: true, message: "Registration Successful" };
-      }
-    } catch (error) {
-      return { success: false, message: error.response?.data?.message || "Registration Failed" };
-    }
+    setUser(dummyUser); // State update ho gayi -> User Login ho gaya!
+    console.log("Login ho gaya:", dummyUser);
+    return { success: true, message: "Login Successful (Dummy)" };
   };
 
-  // --- LOGIN ---
-  const login = async (email, password) => {
-    try {
-      const { data } = await API.post("/api/user/login", { email, password });
-      if (data.success) {
-        setUser(data.user); // Backend se user data aana chahiye
-        return { success: true, message: "Login Successful" };
-      }
-    } catch (error) {
-      return { success: false, message: error.response?.data?.message || "Login Failed" };
-    }
+  // --- LOGOUT FUNCTION ---
+  const logout = () => {
+    setUser(null); // User ko wapis null kar diya -> Logout ho gaya
+    console.log("User Logout ho gaya");
   };
 
-  // --- LOGOUT ---
-  const logout = async () => {
-    try {
-      await API.get("/api/user/logout");
-      setUser(null);
-    } catch (error) {
-      console.error("Logout Error", error);
-    }
-  };
-
+  // 3. Value: Ye cheezein puri app me available hongi
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// 4. Hook: Isko dusre pages me use karenge
 export const useAuth = () => useContext(AuthContext);

@@ -115,7 +115,7 @@ function ProductPage() {
                                     <div className="flex gap-1 items-center">
                                         <button
                                             onClick={() => toggleLike(item._id)}
-                                            className="uppercase flex items-center border border-black px-1 py-1 md:px-2 md:py-2 "
+                                            className="uppercase flex items-center  hover:text-white border border-black px-1 py-1 md:px-2 md:py-2 "
                                         >
                                             <Heart
                                                 size={15}
@@ -125,7 +125,7 @@ function ProductPage() {
                                         </button>
                                         <button
                                             onClick={() => addToCart(item._id)}
-                                            className="uppercase flex items-center gap-1 md:gap-3 border border-black px-1 md:px-2 md:py-1"
+                                            className="uppercase hover:bg-black hover:text-white flex items-center gap-1 md:gap-3 border border-black px-1 md:px-2 md:py-1"
                                         >
                                             Add
                                             <ShoppingCart size={15} />
