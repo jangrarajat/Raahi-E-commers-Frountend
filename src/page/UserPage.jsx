@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import ButtonLoader from '../components/loader/ButtonLoader'
 
 function UserPage() {
-    const { user, logout } = useAuth()
+    const { user, logout ,logoutLoading } = useAuth()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -43,10 +44,10 @@ function UserPage() {
                     </ul>
                 </div>
                 <div>
-                    <button className=' underline'
+                    <button className=' underline flex flex-row '
                         onClick={logout}
                     >
-                        SIGN OUT
+                        SIGN OUT {logoutLoading ? (<><ButtonLoader/></>): null}
                     </button>
                 </div>
 

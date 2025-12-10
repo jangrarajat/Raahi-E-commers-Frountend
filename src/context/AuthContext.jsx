@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [registrationErrorMsg, setRegistrationErrorMsg] = useState("")
   const [loginFailedMsg, setLoginFailedMsg] = useState(false)
   const [loginErrorMsg, setLoginErrorMsg] = useState("")
+  const [logoutLoading, setLogoutLoading] = useState(false)
   const navigate = useNavigate()
 
 
@@ -36,10 +37,10 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setLoginLaoding(false)
       setLoginFailedMsg(true)
-      
+
       setLoginErrorMsg(error.response?.data.message)
       console.log("error in login", error)
-      if(error.message === "Network Error") return setLoginErrorMsg(error.message)
+      if (error.message === "Network Error") return setLoginErrorMsg(error.message)
     }
   };
 
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   // --- LOGOUT FUNCTION ---
   const logout = async () => {
-
+    setLogoutLoading(true)
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/logout`, {}, { withCredentials: true })
       console.log(res)
@@ -72,9 +73,11 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           console.log("error in refreshExpiredtoken", error.response.data.message)
           throw error
+        } finally {
+          setLogoutLoading(false)
         }
       }
-      throw error
+
     }
   };
 
@@ -119,7 +122,9 @@ export const AuthProvider = ({ children }) => {
       loginFailedMsg,
       setLoginFailedMsg,
       loginErrorMsg,
-      setLoginErrorMsg
+      setLoginErrorMsg,
+      logoutLoading,
+      setLogoutLoading
     }}>
       {children}
     </AuthContext.Provider>
