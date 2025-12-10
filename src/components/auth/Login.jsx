@@ -3,9 +3,10 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import Loader from '../loader/Loader'
 import ButtonLoader from '../loader/ButtonLoader'
+import FailedMsf from '../msg/FailedMsf'
 
 function Login({ setIsLoginView, setShowAuth }) {
-    const { login, logout, loginLaoding } = useAuth()
+    const { login, logout, loginLaoding, loginFailedMsg } = useAuth()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
@@ -60,9 +61,21 @@ function Login({ setIsLoginView, setShowAuth }) {
                         </button>)}
 
                 </form>
+
+                {
+                    loginFailedMsg ? (
+                        <div className='w-full px-4 min-h-5'>
+                            <FailedMsf />
+                        </div>
+                    ) : null
+
+                }
+
                 <div className='w-full h-fit px-4'>
                     <h1 className=' uppercase text-xs py-2 cursor-pointer hover:underline'>forget password</h1>
                 </div>
+
+
                 <div className='w-full px-4 min-h-5'>
                     <button className='border  w-full my-3 h-11 border-black font-extralight px-4 py-3  cursor-pointer'
                         onClick={() => setIsLoginView(false)}
@@ -71,7 +84,7 @@ function Login({ setIsLoginView, setShowAuth }) {
                     </button>
                 </div>
                 <h4 className='h-[10%] w-full  flex items-center justify-center text-sm gap-1 font-extralight  px-4'>
-                    <Lock size={13}/> All data is kept secure
+                    <Lock size={13} /> All data is kept secure
 
                 </h4>
                 <h4 className='h-[10%] w-full  uppercase flex items-end justify-center gap-1 font-extralight  px-4'>

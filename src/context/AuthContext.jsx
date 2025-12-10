@@ -15,6 +15,8 @@ export const AuthProvider = ({ children }) => {
   const [registrationSuccessMsg, setRegistrationSuccessMsg] = useState(false)
   const [registrationFailedMsg, setRegistrationFailedMsg] = useState(false)
   const [registrationErrorMsg, setRegistrationErrorMsg] = useState("")
+  const [loginFailedMsg, setLoginFailedMsg] = useState(false)
+  const [loginErrorMsg, setLoginErrorMsg] = useState("")
   const navigate = useNavigate()
 
 
@@ -33,7 +35,11 @@ export const AuthProvider = ({ children }) => {
       return { success: true, message: "Login Successful " };
     } catch (error) {
       setLoginLaoding(false)
-      console.log("error in login", error.message)
+      setLoginFailedMsg(true)
+      
+      setLoginErrorMsg(error.response?.data.message)
+      console.log("error in login", error)
+      if(error.message === "Network Error") return setLoginErrorMsg(error.message)
     }
   };
 
@@ -109,7 +115,11 @@ export const AuthProvider = ({ children }) => {
       setRegistrationSuccessMsg,
       setRegistrationFailedMsg,
       registrationErrorMsg,
-       setRegistrationErrorMsg
+      setRegistrationErrorMsg,
+      loginFailedMsg,
+      setLoginFailedMsg,
+      loginErrorMsg,
+      setLoginErrorMsg
     }}>
       {children}
     </AuthContext.Provider>
