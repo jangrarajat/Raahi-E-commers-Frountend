@@ -1,18 +1,19 @@
 import React from "react";
 import { Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
     <div className="w-full bg-white mt-10 overflow-x-hidden">
-      
+
       {/* Top Grid */}
       <div className="w-full flex flex-col md:flex-row justify-between px-6 md:px-16 py-10 gap-10">
-        
+
         <ul className="flex flex-col gap-2">
           <b className="mb-2 uppercase">Shop</b>
-          <a className="hover:underline uppercase">Ladies</a>
-          <a className="hover:underline uppercase">Man</a>
-          <a className="hover:underline uppercase">Kids</a>
+          <Link className="hover:underline uppercase" to="/product/ladies">Ladies</Link>
+          <Link className="hover:underline uppercase" to="/product/man">Man</Link>
+          <Link className="hover:underline uppercase" to="/product/kids">kids</Link>
           <a className="hover:underline uppercase">Accessories</a>
         </ul>
 

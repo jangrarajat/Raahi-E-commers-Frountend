@@ -17,7 +17,7 @@ function SuccessMsg() {
         <div className='bg-green-400 flex my-2 flex-col justify-center items-center text-lg text-black  px-4 py-3 '
 
         >
-            <span className='flex items-center text-sm'><CircleCheck size={13}/> Registration Successfull </span>
+            <span className='flex items-center text-sm'><CircleCheck size={13}/>   Successfull </span>
             <span className='text-xs flex text-center'>
                 <MoveDown size={15} /> Click on back to Signup
             </span>

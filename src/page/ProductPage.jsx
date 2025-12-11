@@ -122,8 +122,8 @@ function ProductPage() {
                                     <div className="flex gap-1 items-center">
                                         <button
                                             onClick={() => toggleLike(item._id)}
-                                            className={`uppercase flex items-center border p-2  md:p-3   hover:bg-black hover:text-white
-                                                 ${isLiked(item._id) ? "bg-black text-white"
+                                            className={`uppercase flex items-center border p-2  md:p-3   
+                                                 ${isLiked(item._id) ? "bg-black text-white "
                                                     : "bg-white text-black"}`
                                             }
                                         >
@@ -134,7 +134,7 @@ function ProductPage() {
                                         </button>
                                         <button
                                             onClick={() => addToCart(item._id)}
-                                            className={`uppercase flex items-center border p-1  md:p-2   hover:bg-black hover:text-white
+                                            className={`uppercase flex items-center border p-1  md:p-2    
                                                  ${isCart(item._id) ? "bg-black text-white"
                                                     : "bg-white text-black"}`
                                             }   >

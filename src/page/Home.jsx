@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 
 function Home() {
   const ladiesHighlights = [
-    "https://res.cloudinary.com/drrj8rl9n/image/upload/v1763747859/WhatsApp_Image_2025-11-21_at_18.12.08_f5f69226_bdta3o.jpg",
-    "https://res.cloudinary.com/drrj8rl9n/image/upload/v1763747860/Gemini_Generated_Image_17w7sy17w7sy17w7_kua2hd.jpg",
-    "https://res.cloudinary.com/drrj8rl9n/image/upload/v1763747861/Gemini_Generated_Image_4ejukw4ejukw4eju_lbfa1j.jpg",
+    "https://i.pinimg.com/736x/86/57/97/8657978ee113d8a786501cceff4dc049.jpg",
+    "https://i.pinimg.com/736x/ba/f2/6c/baf26cb160347879c6bd207fb020fb08.jpg",
+    "https://i.pinimg.com/1200x/dd/de/8f/ddde8f62b46f1b768cc1a5ea1b4553a5.jpg",
   ];
 
   const manHighlights = [
@@ -50,11 +50,11 @@ function Home() {
           <p className="uppercase ml-4">highlights</p>
         </div>
 
-        <div className="w-full flex flex-col md:flex-row justify-center gap-4 px-4 overflow-hidden">
+        <div className="w-full flex flex-col md:flex-row justify-center  px-4 overflow-hidden">
           {ladiesHighlights.map((URL, i) => (
             <div
               key={i}
-              className="w-full md:w-1/3 h-[70vh] bg-cover bg-center cursor-pointer rounded"
+              className="w-full md:w-1/3 h-[100vh] bg-cover bg-center cursor-pointer "
               style={{ backgroundImage: `url('${URL}')` }}
             ></div>
           ))}
@@ -68,11 +68,11 @@ function Home() {
           <p className="uppercase ml-4">highlights</p>
         </div>
 
-        <div className="w-full flex flex-col md:flex-row justify-center gap-4 px-4 overflow-hidden">
+        <div className="w-full flex flex-col md:flex-row justify-center  px-4 overflow-hidden">
           {manHighlights.map((URL, i) => (
             <div
               key={i}
-              className="w-full md:w-1/3 h-[70vh] bg-cover bg-center cursor-pointer rounded"
+              className="w-full md:w-1/3 h-[70vh] bg-cover bg-center cursor-pointer "
               style={{ backgroundImage: `url('${URL}')` }}
             ></div>
           ))}
@@ -87,11 +87,11 @@ function Home() {
           <p className="uppercase ml-4">highlights</p>
         </div>
 
-        <div className="w-full flex flex-col md:flex-row justify-center gap-4 px-4 overflow-hidden">
+        <div className="w-full  flex flex-col md:flex-row justify-center  px-4 overflow-hidden">
           {kidsHighlights.map((URL, i) => (
             <div
               key={i}
-              className="w-full md:w-1/3 h-[70vh] bg-cover bg-center cursor-pointer rounded"
+              className="w-full md:w-1/3 h-[70vh] bg-cover bg-center cursor-pointer "
               style={{ backgroundImage: `url('${URL}')` }} >
 
             </div>
