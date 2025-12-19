@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import './App.css'
 import Navbar from './components/Navbar'
@@ -14,9 +14,23 @@ import OrderaPage from './page/accountPages/OrderaPage'
 import DashboardPage from './page/accountPages/DashboardPage'
 import ChangePassword from './page/accountPages/ChangePassword'
 import ForgetPasswordPage from './page/forgetPasswordPage/ForgetPasswordPage'
+import axios from 'axios'
 
 function App() {
   const [count, setCount] = useState(0)
+  useEffect(() => {
+    const activateDataBase = async () => {
+      try {
+        console.log("Rajat baby")
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}`)
+        console.log(res)
+      } catch (error) {
+        console.log("error in activateDataBase", error.message)
+        throw error
+      }
+    }
+    activateDataBase()
+  }, [])
 
   return (
     <>
@@ -34,7 +48,7 @@ function App() {
         <Route path='/account/orders' element={<><Navbar /> <OrderaPage /><Footer /></>} />
         <Route path='/account/dashboard' element={<><Navbar /> <DashboardPage /><Footer /></>} />
         <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /><Footer /></>} />
-        <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage/></>} />
+        <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage /></>} />
 
       </Routes>
 
