@@ -1,7 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState, useRef } from 'react'
-import ButtonLoader from '../../components/loader/ButtonLoader'
-import OtpLoader from '../../components/loader/otpLoader'
+import OtpLoader from '../../components/loader/OtpLoader'
 import { Check, CircleX } from 'lucide-react'
 import MyMsges from '../../components/msg/MyMsges'
 
@@ -11,7 +10,6 @@ function ForgetPasswordPage() {
     const [getEmailSendOtp, setGetEmailSendOtp] = useState(true)
     const [verifyOtp, setVerifyOtp] = useState(false)
     const [otpLoading, setOtpLoading] = useState(false)
-    const [otp, setOtp] = useState(new Array(6).fill(""));
     const [myOtp, setMyotp] = useState("")
     const [lmsg, setLmsg] = useState("")
     const [passwordInput, setPasswordInput] = useState(false)
