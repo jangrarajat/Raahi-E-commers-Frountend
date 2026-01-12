@@ -23,7 +23,9 @@ function AccountMenuBar() {
                 {
                     user?.role === 'owner' ? (
                         <>
-                            <Link to="/account/dashboard" className=' uppercase font-normal text-3xl hover:underline'>
+                            <Link
+                                to="/account/dashboard"
+                                className=' uppercase font-normal text-3xl hover:underline'>
                                 dashboard
                             </Link>
                         </>

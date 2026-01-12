@@ -45,7 +45,7 @@ function App() {
         <Route path='/like' element={<><Navbar /> <LikePage /><Footer /></>} />
         <Route path='/account/setting' element={<><Navbar /> <AccountSettingsPage /><Footer /></>} />
         <Route path='/account/orders' element={<><Navbar /> <OrderaPage /><Footer /></>} />
-        <Route path='/account/dashboard' element={<><Navbar /> <DashboardPage /><Footer /></>} />
+        <Route path='/account/dashboard' element={<> <DashboardPage /></>} />
         <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /><Footer /></>} />
         <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage /></>} />
 
