@@ -1,384 +1,739 @@
-import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import API from '../../api/axios'; 
 import { 
-    LayoutDashboard, 
-    ShoppingBag, 
-    Package, 
-    Users, 
-    TrendingUp, 
-    MapPin, 
-    Home,
-    Plus, 
-    Search,
-    Trash2,
-    CheckCircle,
-    XCircle,
-    Edit
-} from 'lucide-react'
+    LayoutDashboard, ShoppingBag, Package, Users, TrendingUp, 
+    Home, Plus, Search, Trash2, X, ChevronUp, ChevronDown, 
+    Clock, CheckCircle, XCircle, ChevronLeft, ChevronRight, Settings, 
+    MapPin, AlertTriangle, UploadCloud, Loader2, Menu, Check, Info
+} from 'lucide-react';
+import { 
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
+} from 'recharts';
+import { format, subDays, startOfMonth, startOfYear } from 'date-fns';
 
-// --- DUMMY DATA (Backend se replace karein) ---
-const initialOrders = [
-    { id: '#1001', customer: 'Rajat Jangra', product: 'Oversized Tee (Black)', amount: '₹899', status: 'Pending', date: '12 Jan, 2026' },
-    { id: '#1002', customer: 'Amit Kumar', product: 'Cargo Pants (Green)', amount: '₹1499', status: 'Shipped', date: '11 Jan, 2026' },
-    { id: '#1003', customer: 'Rahul Sharma', product: 'Denim Jacket', amount: '₹2200', status: 'Delivered', date: '10 Jan, 2026' },
-]
+// --- CONSTANTS ---
+const CATEGORIES = ["Men", "Women", "Kids", "Accessories"];
+const SUB_CATEGORIES = [
+    "T-Shirt", "Shirt", "Jeans", "Trousers", "Shorts", "Joggers", "Track Pants",
+    "Kurta", "Kurti", "Saree", "Lehenga", "Salwar Suit", "Sherwani",
+    "Dress", "Top", "Tunic", "Skirt", "Jumpsuit", "Gown",
+    "Jacket", "Hoodie", "Sweatshirt", "Blazer", "Coat", "Sweater",
+    "Activewear", "Sleepwear", "Innerwear", "Swimwear",
+    "Shoes", "Sandals", "Sneakers", "Formal Shoes",
+    "Watch", "Belt", "Wallet", "Bag", "Sunglasses", "Jewellery", "Perfume"
+].sort();
 
-const initialPincodes = [
-    { code: '301001', city: 'Alwar', active: true },
-    { code: '110001', city: 'Delhi', active: true },
-    { code: '400001', city: 'Mumbai', active: false }, // Currently not delivering
-]
+// --- SKELETON LOADER ---
+const Skeleton = ({ className }) => <div className={`animate-pulse bg-gray-300/50 rounded-lg ${className}`}></div>;
+const TableRowSkeleton = ({ cols = 4 }) => (
+    <tr>{[...Array(cols)].map((_, i) => <td key={i} className="p-4"><Skeleton className="h-6 w-full" /></td>)}</tr>
+);
 
-const initialProducts = [
-    { id: 1, name: 'Basic Black Tee', price: '₹499', stock: 120, category: 'Men' },
-    { id: 2, name: 'Slim Fit Jeans', price: '₹1299', stock: 45, category: 'Men' },
-]
+// --- TOAST NOTIFICATION COMPONENT (NEW) ---
+const Toast = ({ toast, onClose }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => onClose(), 4000); // Auto close after 4s
+        return () => clearTimeout(timer);
+    }, [onClose]);
 
-function DashboardPage() {
-    const navigate = useNavigate()
-    const [activeTab, setActiveTab] = useState('dashboard') // Konsa page dikhana hai
-
-    // --- RENDER CONTENT FUNCTION (Switch Case) ---
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'dashboard': return <DashboardOverview setActiveTab={setActiveTab} />
-            case 'products': return <ProductManager />
-            case 'orders': return <OrderManager />
-            case 'customers': return <CustomerManager />
-            case 'pincodes': return <PincodeManager />
-            case 'analytics': return <AnalyticsView />
-            default: return <DashboardOverview />
-        }
-    }
+    if (!toast.show) return null;
 
     return (
-        <div className="flex h-screen bg-zinc-50 font-sans text-zinc-900 overflow-hidden">
-            
-            {/* --- SIDEBAR --- */}
-            <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col justify-between hidden md:flex">
-                <div>
-                    <div className="h-20 flex items-center justify-center border-b border-zinc-100">
-                        <h1 className="text-2xl font-bold tracking-tighter uppercase">RAAHI <span className='font-light'>ADMIN</span></h1>
-                    </div>
-                    <nav className="p-4 space-y-2 mt-4">
-                        <SidebarBtn label="Dashboard" icon={LayoutDashboard} id="dashboard" activeTab={activeTab} setTab={setActiveTab} />
-                        <SidebarBtn label="Products" icon={Package} id="products" activeTab={activeTab} setTab={setActiveTab} />
-                        <SidebarBtn label="Orders" icon={ShoppingBag} id="orders" activeTab={activeTab} setTab={setActiveTab} />
-                        <SidebarBtn label="Customers" icon={Users} id="customers" activeTab={activeTab} setTab={setActiveTab} />
-                        <SidebarBtn label="Delivery Pincodes" icon={MapPin} id="pincodes" activeTab={activeTab} setTab={setActiveTab} />
-                        <SidebarBtn label="Analytics" icon={TrendingUp} id="analytics" activeTab={activeTab} setTab={setActiveTab} />
-                    </nav>
-                </div>
+        <div className={`fixed top-5 right-5 z-[70] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl backdrop-blur-md border animate-in slide-in-from-right fade-in duration-300 ${
+            toast.type === 'error' ? 'bg-red-50/90 border-red-200 text-red-800' : 
+            toast.type === 'success' ? 'bg-green-50/90 border-green-200 text-green-800' : 'bg-white/90 border-gray-200 text-gray-800'
+        }`}>
+            {toast.type === 'error' && <XCircle size={24} className="text-red-500" />}
+            {toast.type === 'success' && <CheckCircle size={24} className="text-green-500" />}
+            {toast.type === 'info' && <Info size={24} className="text-blue-500" />}
+            <div>
+                <h4 className="font-bold text-sm">{toast.type === 'error' ? 'Error' : toast.type === 'success' ? 'Success' : 'Info'}</h4>
+                <p className="text-xs font-medium opacity-90">{toast.message}</p>
+            </div>
+            <button onClick={onClose} className="ml-2 hover:bg-black/5 p-1 rounded-full"><X size={16} /></button>
+        </div>
+    );
+};
 
-                {/* Home / Back Button */}
-                <div className="p-4 border-t border-zinc-100">
-                    <button 
-                        onClick={() => navigate('/')} 
-                        className="w-full flex items-center gap-3 px-4 py-3 text-zinc-600 hover:bg-zinc-100 rounded-lg transition-all"
-                    >
-                        <Home size={20} />
-                        <span className="font-medium">Back to Website</span>
+function DashboardPage() {
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Global States
+    const [orders, setOrders] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [stats, setStats] = useState({ 
+        totalRevenue: 0, totalOrders: 0, totalProducts: 0, totalUsers: 0,
+        breakdown: { delivered: 0, pending: 0, cancelled: 0, today: 0 }
+    });
+    
+    // Pagination
+    const [orderPage, setOrderPage] = useState(1);
+    const [orderTotalPages, setOrderTotalPages] = useState(1);
+    const [productPage, setProductPage] = useState(1);
+    const [productTotalPages, setProductTotalPages] = useState(1);
+
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [timeFilter, setTimeFilter] = useState('week'); 
+    const [productSearch, setProductSearch] = useState('');
+
+    // --- MODAL & TOAST STATE ---
+    const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', action: null });
+    const [toast, setToast] = useState({ show: false, message: '', type: 'info' }); // 'success', 'error', 'info'
+
+    // Helper Functions
+    const requestConfirm = (title, message, action) => setConfirmModal({ show: true, title, message, action });
+    const handleConfirm = async () => { if (confirmModal.action) await confirmModal.action(); setConfirmModal({ ...confirmModal, show: false }); };
+    
+    const showToast = (message, type = 'info') => setToast({ show: true, message, type });
+    const closeToast = () => setToast({ ...toast, show: false });
+
+    // --- DATA FETCHING ---
+    const fetchData = async (isBackground = false) => {
+        try {
+            if(!isBackground) setLoading(true); else setRefreshing(true);
+
+            // Stats
+            const statsRes = await API.get(`/api/dashboard/admin/stats?range=${timeFilter}`);
+            if(statsRes.data.success) setStats(statsRes.data.stats);
+
+            // Orders
+            const ordersRes = await API.get(`/api/dashboard/admin/orders?page=${orderPage}&limit=50`);
+            if(ordersRes.data.success) { setOrders(ordersRes.data.orders); setOrderTotalPages(ordersRes.data.totalPages); }
+
+            // Products
+            if(!isBackground || activeTab === 'products') {
+                const prodRes = await API.get(`/api/dashboard/getAllProduct?page=${productPage}&limit=50&search=${productSearch}`);
+                if(prodRes.data.success) { setProducts(prodRes.data.products); setProductTotalPages(prodRes.data.totalPages); }
+            }
+            setLoading(false); setRefreshing(false);
+        } catch (error) { console.error(error); setLoading(false); setRefreshing(false); }
+    };
+
+    useEffect(() => { const t = setTimeout(fetchData, 500); return () => clearTimeout(t); }, [timeFilter, orderPage, productPage, productSearch]);
+    useEffect(() => { const i = setInterval(() => fetchData(true), 5000); return () => clearInterval(i); }, [timeFilter, orderPage, productPage]);
+
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'dashboard': return <DashboardOverview stats={stats} orders={orders} timeFilter={timeFilter} setTimeFilter={setTimeFilter} loading={loading} />;
+            case 'products': return (
+                <ProductManager 
+                    products={products} refreshData={() => fetchData(true)} 
+                    page={productPage} setPage={setProductPage} totalPages={productTotalPages}
+                    search={productSearch} setSearch={setProductSearch} 
+                    requestConfirm={requestConfirm} showToast={showToast} loading={loading}
+                />
+            );
+            case 'orders': return (
+                <OrderManager 
+                    orders={orders} refreshData={() => fetchData(true)} 
+                    page={orderPage} setPage={setOrderPage} totalPages={orderTotalPages} 
+                    requestConfirm={requestConfirm} showToast={showToast} loading={loading}
+                />
+            );
+            case 'settings': return <SettingsManager requestConfirm={requestConfirm} showToast={showToast} />;
+            default: return <DashboardOverview stats={stats} orders={orders} timeFilter={timeFilter} setTimeFilter={setTimeFilter} loading={loading} />;
+        }
+    };
+
+    return (
+        <div className="flex h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-100 font-sans text-gray-800 overflow-hidden relative">
+            
+            {/* --- TOAST --- */}
+            <Toast toast={toast} onClose={closeToast} />
+
+            {/* --- CONFIRMATION MODAL --- */}
+            {confirmModal.show && (
+                <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-md animate-in fade-in p-4">
+                    <div className="bg-white/90 backdrop-blur-xl p-6 rounded-2xl shadow-2xl max-w-sm w-full border border-white/50">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="bg-red-100 p-3 rounded-full mb-4 text-red-500"><AlertTriangle size={32} /></div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">{confirmModal.title}</h3>
+                            <p className="text-gray-500 text-sm mb-6">{confirmModal.message}</p>
+                            <div className="flex gap-3 w-full">
+                                <button onClick={() => setConfirmModal({ ...confirmModal, show: false })} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-bold hover:bg-gray-50">Cancel</button>
+                                <button onClick={handleConfirm} className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gray-900 to-black text-white font-bold shadow-lg hover:shadow-xl transition">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- MOBILE OVERLAY --- */}
+            {isSidebarOpen && <div className="fixed inset-0 bg-black/20 z-20 md:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}></div>}
+
+            {/* --- SIDEBAR --- */}
+            <aside className={`fixed inset-y-0 left-0 z-30 w-64 bg-white/70 backdrop-blur-xl border-r border-white/50 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:shadow-none`}>
+                <div className="h-20 flex items-center justify-center border-b border-white/50">
+                    <h1 className="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 drop-shadow-sm">RAAHI</h1>
+                </div>
+                <nav className="p-4 space-y-2 mt-4 flex-1">
+                    <SidebarBtn label="Overview" icon={LayoutDashboard} id="dashboard" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
+                    <SidebarBtn label="Products" icon={Package} id="products" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
+                    <SidebarBtn label="Orders" icon={ShoppingBag} id="orders" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
+                    <SidebarBtn label="Customers" icon={Users} id="customers" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
+                    <SidebarBtn label="Settings" icon={Settings} id="settings" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
+                </nav>
+                <div className="p-4 border-t border-white/50">
+                    <button onClick={() => navigate('/')} className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-white/50 rounded-xl transition-all font-medium">
+                        <Home size={18} /> Back to Site
                     </button>
                 </div>
             </aside>
 
-            {/* --- MAIN CONTENT AREA --- */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                {/* Header */}
-                <header className="h-20 bg-white border-b border-zinc-200 flex items-center justify-between px-8 sticky top-0 z-40">
-                    <h2 className="text-xl font-bold uppercase tracking-wide">{activeTab.replace('-', ' ')}</h2>
+            {/* --- MAIN --- */}
+            <div className="flex-1 flex flex-col h-screen overflow-hidden relative w-full">
+                <header className="h-20 bg-white/60 backdrop-blur-lg border-b border-white/40 flex items-center justify-between px-6 sticky top-0 z-10 shadow-sm">
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold">R</div>
+                        <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-gray-600 p-2 hover:bg-white/50 rounded-lg"><Menu size={24} /></button>
+                        <h2 className="text-xl font-bold capitalize text-gray-800 tracking-tight">{activeTab}</h2>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        {refreshing && <span className="text-xs font-bold text-indigo-500 animate-pulse bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Updating...</span>}
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">A</div>
                     </div>
                 </header>
-
-                {/* Dynamic Content Body */}
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-zinc-50 p-8 [&::-webkit-scrollbar]:hidden">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 scroll-smooth">
                     {renderContent()}
                 </main>
             </div>
         </div>
-    )
+    );
 }
 
-// --- SUB-COMPONENTS (Views) ---
+// ----------------------------------------------------------------------
+// 1. DASHBOARD OVERVIEW
+// ----------------------------------------------------------------------
+function DashboardOverview({ stats, orders, timeFilter, setTimeFilter, loading }) {
+    const [showOrderStats, setShowOrderStats] = useState(false); 
 
-// 1. DASHBOARD HOME
-function DashboardOverview({ setActiveTab }) {
-    return (
+    const chartData = useMemo(() => {
+        const now = new Date();
+        let dataMap = {};
+        let formatStr = 'EEE'; 
+        let startDate = subDays(now, 7);
+        if (timeFilter === 'day') { startDate = subDays(now, 1); formatStr = 'HH:mm'; }
+        else if (timeFilter === 'week') { startDate = subDays(now, 7); formatStr = 'EEE'; }
+        else if (timeFilter === 'month') { startDate = startOfMonth(now); formatStr = 'dd MMM'; }
+        else if (timeFilter === 'year') { startDate = startOfYear(now); formatStr = 'MMM'; }
+        const filteredOrders = orders.filter(o => new Date(o.createdAt) >= startDate);
+        filteredOrders.forEach(order => {
+            const dateKey = format(new Date(order.createdAt), formatStr);
+            if (!dataMap[dateKey]) dataMap[dateKey] = { name: dateKey, sales: 0 };
+            dataMap[dateKey].sales += order.totalAmount || 0;
+        });
+        return Object.values(dataMap);
+    }, [orders, timeFilter]);
+
+    if (loading) return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <StatCard title="Total Sales" value="₹45,200" color="bg-zinc-900 text-white" />
-                <StatCard title="New Orders" value="12" color="bg-white border border-zinc-200" />
-                <StatCard title="Pending Delivery" value="5" color="bg-white border border-zinc-200" />
-                <StatCard title="Active Pincodes" value="150" color="bg-white border border-zinc-200" />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)}
             </div>
-            
-            <div className="bg-white p-6 rounded-xl border border-zinc-200">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-lg">Recent Orders</h3>
-                    <button onClick={() => setActiveTab('orders')} className="text-sm text-zinc-500 hover:text-black underline">View All</button>
+            <Skeleton className="h-80 w-full rounded-2xl" />
+        </div>
+    );
+
+    return (
+        <div className="space-y-6 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-end">
+                <div className="bg-white/50 backdrop-blur-md p-1 rounded-xl shadow-sm border border-white/50 inline-flex">
+                    {['day', 'week', 'month', 'year', 'all'].map(filter => (
+                        <button key={filter} onClick={() => setTimeFilter(filter)} className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${timeFilter === filter ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-900'}`}>{filter}</button>
+                    ))}
                 </div>
-                <OrderTable orders={initialOrders.slice(0, 3)} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <StatCard title="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-200" isDark />
+                <div onClick={() => setShowOrderStats(!showOrderStats)} className="cursor-pointer transition-all hover:scale-[1.02]">
+                    <StatCard title="Total Orders" value={stats.totalOrders} icon={showOrderStats ? ChevronUp : ChevronDown} color="bg-white/60 backdrop-blur-md text-gray-800 border border-white/60" />
+                </div>
+                <StatCard title="Total Products" value={stats.totalProducts} icon={Package} color="bg-white/60 backdrop-blur-md text-gray-800 border border-white/60" />
+                <StatCard title="Total Users" value={stats.totalUsers} icon={Users} color="bg-white/60 backdrop-blur-md text-gray-800 border border-white/60" />
+            </div>
+
+            {showOrderStats && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-in slide-in-from-top-2 fade-in">
+                    <MiniStatCard label="Today" value={stats.breakdown?.today || 0} icon={Clock} color="text-blue-600 bg-blue-50/50" />
+                    <MiniStatCard label="Delivered" value={stats.breakdown?.delivered || 0} icon={CheckCircle} color="text-green-600 bg-green-50/50" />
+                    <MiniStatCard label="Pending" value={stats.breakdown?.pending || 0} icon={ShoppingBag} color="text-yellow-600 bg-yellow-50/50" />
+                    <MiniStatCard label="Cancelled" value={stats.breakdown?.cancelled || 0} icon={XCircle} color="text-red-600 bg-red-50/50" />
+                </div>
+            )}
+
+            <div className="bg-white/60 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-white/50">
+                <h3 className="font-bold text-lg text-gray-800 mb-6">Sales Analytics</h3>
+                <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData}>
+                            <defs>
+                                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
+                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)"/>
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 11}} />
+                            <YAxis axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 11}} />
+                            <Tooltip contentStyle={{backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'}} />
+                            <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
         </div>
-    )
+    );
 }
 
-// 2. PRODUCT MANAGER (Add & List)
-function ProductManager() {
-    const [isAdding, setIsAdding] = useState(false) // Toggle Add Form
-    const [products, setProducts] = useState(initialProducts)
+// ----------------------------------------------------------------------
+// 2. PRODUCT MANAGER
+// ----------------------------------------------------------------------
+function ProductManager({ products, refreshData, page, setPage, totalPages, search, setSearch, requestConfirm, showToast, loading }) {
+    const [isAdding, setIsAdding] = useState(false);
+    const [editingStock, setEditingStock] = useState(null); 
+    const [stockUpdateData, setStockUpdateData] = useState({ color: '', size: '', newStock: '' });
+    
+    const [actionLoading, setActionLoading] = useState(null); 
+    const [stockLoading, setStockLoading] = useState(false);
+    
+    const [formData, setFormData] = useState({ name: '', description: '', price: '', mrp: '', category: '', subCategory: '', fabric: '' });
+    const [variants, setVariants] = useState([{ color: '', size: '', stock: 0 }]);
+    const [imageSlots, setImageSlots] = useState([null, null, null, null, null]);
+    const [imagePreviews, setImagePreviews] = useState([null, null, null, null, null]);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleImageChange = (index, e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const newSlots = [...imageSlots]; newSlots[index] = file; setImageSlots(newSlots);
+            const newPreviews = [...imagePreviews]; newPreviews[index] = URL.createObjectURL(file); setImagePreviews(newPreviews);
+        }
+    };
+    const removeImage = (index) => {
+        const newSlots = [...imageSlots]; newSlots[index] = null; setImageSlots(newSlots);
+        const newPreviews = [...imagePreviews]; newPreviews[index] = null; setImagePreviews(newPreviews);
+    };
+
+    const handleAddProduct = async (e) => {
+        e.preventDefault();
+        const activeImages = imageSlots.filter(img => img !== null);
+        
+        // --- PROFESSIONAL VALIDATION POPUP ---
+        if (activeImages.length === 0) { showToast("Please upload at least 1 image", "error"); return; }
+        const totalSize = activeImages.reduce((acc, file) => acc + file.size, 0);
+        if (totalSize > 20 * 1024 * 1024) { showToast("Total image size > 20MB. Please optimize.", "error"); return; }
+
+        const data = new FormData();
+        Object.keys(formData).forEach(key => data.append(key, formData[key]));
+        data.append('variants', JSON.stringify(variants));
+        activeImages.forEach(file => data.append('images', file));
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        try {
+            await API.post(`/api/dashboard/addNewProduct`, data, { 
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total))
+            });
+            showToast("Product Published Successfully!", "success");
+            setIsAdding(false);
+            setFormData({ name: '', description: '', price: '', mrp: '', category: '', subCategory: '', fabric: '' });
+            setImageSlots([null,null,null,null,null]); setImagePreviews([null,null,null,null,null]);
+            refreshData();
+        } catch (error) { 
+            showToast(error.response?.data?.message || "Failed to add product", "error");
+        } finally { setIsUploading(false); setUploadProgress(0); }
+    };
+
+    const confirmDelete = (id) => {
+        requestConfirm("Delete Product?", "This action cannot be undone.", async () => {
+            setActionLoading(id);
+            try { await API.delete(`/api/dashboard/deleteProduct/${id}`); showToast("Product deleted", "success"); refreshData(); } 
+            catch (error) { showToast("Delete failed", "error"); }
+            setActionLoading(null);
+        });
+    };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <div className="flex gap-2">
-                    <input placeholder="Search products..." className="px-4 py-2 border rounded-lg bg-white outline-none focus:border-black" />
+        <div className="pb-10">
+            <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center w-full md:w-auto">
+                    <h3 className="font-bold text-2xl text-gray-800 tracking-tight">Products</h3>
+                    <div className="relative w-full md:w-auto group">
+                        <Search className="absolute left-3 top-2.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={18}/>
+                        <input placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10 pr-4 py-2.5 border border-white/60 rounded-xl bg-white/60 backdrop-blur-md text-sm focus:ring-2 ring-indigo-300 outline-none w-full md:w-72 shadow-sm focus:shadow-md transition-all"
+                        />
+                    </div>
                 </div>
-                <button 
-                    onClick={() => setIsAdding(!isAdding)}
-                    className="bg-black text-white px-5 py-2 rounded-lg flex items-center gap-2 hover:bg-zinc-800"
-                >
-                    {isAdding ? <XCircle size={18}/> : <Plus size={18}/>} 
-                    {isAdding ? 'Cancel' : 'Add Product'}
+                <button onClick={() => setIsAdding(!isAdding)} className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all w-full md:w-auto justify-center font-bold">
+                    {isAdding ? <X size={20}/> : <Plus size={20}/>} {isAdding ? 'Cancel' : 'Add Product'}
                 </button>
             </div>
 
-            {isAdding ? (
-                <div className="bg-white p-8 rounded-xl border border-zinc-200 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4">
-                    <h3 className="text-xl font-bold mb-6">Add New Product</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium mb-1">Product Name</label>
-                            <input className="w-full p-2 border rounded-md outline-none focus:border-black" placeholder="Ex: Oversized T-shirt" />
+            {isAdding && (
+                <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl border border-white/60 shadow-2xl max-w-5xl mx-auto mb-8 animate-in slide-in-from-top-4">
+                     <form onSubmit={handleAddProduct} className="grid grid-cols-2 gap-8">
+                        <div className="col-span-2 md:col-span-1 space-y-5">
+                            <Input label="Product Name" name="name" val={formData} set={setFormData} />
+                            <div className="grid grid-cols-2 gap-4">
+                                <Input label="Price" name="price" val={formData} set={setFormData} type="number"/>
+                                <Input label="MRP" name="mrp" val={formData} set={setFormData} type="number"/>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 mb-1 ml-1">Category</label>
+                                    <select className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-200 outline-none bg-white/50" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
+                                        <option value="">Select Category</option>
+                                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 mb-1 ml-1">Sub Category</label>
+                                    <select className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-200 outline-none bg-white/50" value={formData.subCategory} onChange={(e) => setFormData({...formData, subCategory: e.target.value})}>
+                                        <option value="">Select Sub-Cat</option>
+                                        {SUB_CATEGORIES.map(sc => <option key={sc} value={sc}>{sc}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <Input label="Fabric" name="fabric" val={formData} set={setFormData} />
+                            
+                            <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                                <label className="block text-xs font-bold text-indigo-800 mb-2">Variants</label>
+                                {variants.map((v, i) => (
+                                    <div key={i} className="flex gap-2 mb-2">
+                                        <input placeholder="Color" className="border-0 bg-white shadow-sm p-2 rounded-lg w-1/3 text-sm" value={v.color} onChange={e => {const n=[...variants];n[i].color=e.target.value;setVariants(n)}} />
+                                        <input placeholder="Size" className="border-0 bg-white shadow-sm p-2 rounded-lg w-1/3 text-sm" value={v.size} onChange={e => {const n=[...variants];n[i].size=e.target.value;setVariants(n)}} />
+                                        <input placeholder="Stock" type="number" className="border-0 bg-white shadow-sm p-2 rounded-lg w-1/3 text-sm" value={v.stock} onChange={e => {const n=[...variants];n[i].stock=e.target.value;setVariants(n)}} />
+                                    </div>
+                                ))}
+                                <button type="button" onClick={() => setVariants([...variants, {color:'',size:'',stock:0}])} className="text-xs text-indigo-600 font-bold mt-1">+ Add Variant</button>
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Price (₹)</label>
-                            <input className="w-full p-2 border rounded-md outline-none focus:border-black" placeholder="999" />
+
+                        <div className="col-span-2 md:col-span-1 space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-1 ml-1">Description</label>
+                                <textarea className="w-full p-4 border border-gray-200 rounded-xl h-32 text-sm focus:ring-2 ring-indigo-200 outline-none bg-white/50 resize-none" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})}></textarea>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-2 ml-1">Images</label>
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="col-span-3 h-48 border-2 border-dashed border-indigo-200 rounded-2xl bg-indigo-50/30 flex flex-col justify-center items-center relative overflow-hidden group hover:bg-indigo-50/60 transition">
+                                        {imagePreviews[0] ? (
+                                            <>
+                                                <img src={imagePreviews[0]} alt="Main" className="w-full h-full object-contain" />
+                                                <button type="button" onClick={() => removeImage(0)} className="absolute top-2 right-2 bg-white/80 p-1 rounded-full shadow-sm text-red-500"><X size={16}/></button>
+                                                <div className="absolute bottom-0 w-full bg-indigo-600/90 backdrop-blur-sm text-white text-xs text-center py-1 font-bold">Main Display Image</div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <UploadCloud className="text-indigo-400 mb-2" size={36} />
+                                                <span className="text-xs text-indigo-500 font-bold">Upload Main Image</span>
+                                                <input type="file" accept="image/*" onChange={(e) => handleImageChange(0, e)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                            </>
+                                        )}
+                                    </div>
+                                    {[1, 2, 3, 4].map((index) => (
+                                        <div key={index} className="h-24 border-2 border-dashed border-gray-200 rounded-xl flex justify-center items-center relative overflow-hidden group hover:border-indigo-300 transition bg-white/40">
+                                            {imagePreviews[index] ? (
+                                                <>
+                                                    <img src={imagePreviews[index]} alt="" className="w-full h-full object-cover" />
+                                                    <button type="button" onClick={() => removeImage(index)} className="absolute top-1 right-1 bg-white/80 p-0.5 rounded-full text-red-500"><X size={12}/></button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="text-xs text-gray-300 font-bold">{index + 1}</span>
+                                                    <input type="file" accept="image/*" onChange={(e) => handleImageChange(index, e)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Stock Qty</label>
-                            <input className="w-full p-2 border rounded-md outline-none focus:border-black" placeholder="50" />
-                        </div>
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium mb-1">Description</label>
-                            <textarea className="w-full p-2 border rounded-md outline-none focus:border-black" rows="3"></textarea>
-                        </div>
-                        <button className="col-span-2 bg-black text-white py-3 rounded-md font-bold hover:bg-zinc-800 mt-2">Publish Product</button>
-                    </div>
-                </div>
-            ) : (
-                <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-zinc-50 border-b border-zinc-100 text-zinc-500 uppercase">
-                            <tr>
-                                <th className="p-4">Name</th>
-                                <th className="p-4">Price</th>
-                                <th className="p-4">Stock</th>
-                                <th className="p-4">Category</th>
-                                <th className="p-4">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {products.map((p) => (
-                                <tr key={p.id} className="border-b border-zinc-50 hover:bg-zinc-50">
-                                    <td className="p-4 font-medium">{p.name}</td>
-                                    <td className="p-4">{p.price}</td>
-                                    <td className="p-4">{p.stock} units</td>
-                                    <td className="p-4">{p.category}</td>
-                                    <td className="p-4"><button className="text-blue-600 hover:underline">Edit</button></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+
+                        {isUploading && (
+                            <div className="col-span-2 bg-gray-200 rounded-full h-2 overflow-hidden relative">
+                                <div className="h-full bg-gradient-to-r from-indigo-500 to-pink-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                            </div>
+                        )}
+
+                        <button type="submit" disabled={isUploading} className="col-span-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-xl shadow-lg disabled:opacity-50 flex justify-center items-center gap-2 transition-all">
+                            {isUploading ? <Loader2 className="animate-spin" /> : "Publish Product"}
+                        </button>
+                    </form>
                 </div>
             )}
-        </div>
-    )
-}
 
-// 3. PINCODE MANAGER (Delivery)
-function PincodeManager() {
-    const [pincodes, setPincodes] = useState(initialPincodes)
-    const [newCode, setNewCode] = useState('')
-    const [newCity, setNewCity] = useState('')
-
-    const addPincode = () => {
-        if(!newCode) return;
-        setPincodes([...pincodes, { code: newCode, city: newCity || 'India', active: true }])
-        setNewCode(''); setNewCity('')
-    }
-
-    const toggleStatus = (index) => {
-        const newPins = [...pincodes];
-        newPins[index].active = !newPins[index].active;
-        setPincodes(newPins)
-    }
-
-    const deletePin = (index) => {
-        const newPins = pincodes.filter((_, i) => i !== index);
-        setPincodes(newPins);
-    }
-
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Add New Section */}
-            <div className="bg-white p-6 rounded-xl border border-zinc-200 h-fit">
-                <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><MapPin size={20}/> Add Delivery Area</h3>
-                <div className="space-y-3">
-                    <input 
-                        value={newCode} onChange={(e) => setNewCode(e.target.value)}
-                        placeholder="Enter Pincode (e.g. 301001)" 
-                        className="w-full p-2 border rounded-md outline-none focus:border-black" 
-                    />
-                    <input 
-                        value={newCity} onChange={(e) => setNewCity(e.target.value)}
-                        placeholder="City Name (Optional)" 
-                        className="w-full p-2 border rounded-md outline-none focus:border-black" 
-                    />
-                    <button onClick={addPincode} className="w-full bg-black text-white py-2 rounded-md font-medium">Add Pincode</button>
-                </div>
-            </div>
-
-            {/* List Section */}
-            <div className="md:col-span-2 bg-white rounded-xl border border-zinc-200 overflow-hidden">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-zinc-50 border-b border-zinc-100 text-zinc-500 uppercase">
-                        <tr>
-                            <th className="p-4">Pincode</th>
-                            <th className="p-4">City</th>
-                            <th className="p-4">Status</th>
-                            <th className="p-4">Action</th>
-                        </tr>
+            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 overflow-hidden shadow-xl">
+                <table className="w-full text-left text-sm min-w-[600px]">
+                    <thead className="bg-white/50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs">
+                        <tr><th className="p-5">Product</th><th className="p-5">Price</th><th className="p-5">Variants/Stock</th><th className="p-5">Action</th></tr>
                     </thead>
-                    <tbody>
-                        {pincodes.map((pin, i) => (
-                            <tr key={i} className="border-b border-zinc-50 hover:bg-zinc-50">
-                                <td className="p-4 font-bold">{pin.code}</td>
-                                <td className="p-4 text-zinc-600">{pin.city}</td>
-                                <td className="p-4">
-                                    <button 
-                                        onClick={() => toggleStatus(i)}
-                                        className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${pin.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
-                                    >
-                                        {pin.active ? 'Available' : 'Unavailable'}
-                                    </button>
+                    <tbody className="divide-y divide-gray-100/50">
+                        {loading ? [...Array(5)].map((_, i) => <TableRowSkeleton key={i} />) : 
+                        products.map((p) => (
+                            <tr key={p._id} className="hover:bg-white/40 transition">
+                                <td className="p-5 font-medium flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-white shadow-sm p-1 border border-gray-100 overflow-hidden">
+                                        <img src={p.images[0]?.url || ''} className="w-full h-full object-cover rounded-lg" alt="" />
+                                    </div>
+                                    <div className="truncate max-w-[180px]">
+                                        <p className="text-gray-900 font-bold">{p.name}</p>
+                                        <p className="text-xs text-gray-500">{p.category}</p>
+                                    </div>
                                 </td>
-                                <td className="p-4">
-                                    <button onClick={() => deletePin(i)} className="text-zinc-400 hover:text-red-600"><Trash2 size={18}/></button>
+                                <td className="p-5 font-semibold text-gray-700">₹{p.price}</td>
+                                <td className="p-5">
+                                    {editingStock === p._id ? (
+                                        <div className="flex gap-2 items-center text-xs animate-in fade-in bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
+                                            <select onChange={(e)=> setStockUpdateData({...stockUpdateData, color: e.target.value})} className="border rounded p-1 outline-none"><option>Color</option>{[...new Set(p.variants.map(v=>v.color))].map(c=><option key={c} value={c}>{c}</option>)}</select>
+                                            <select onChange={(e)=> setStockUpdateData({...stockUpdateData, size: e.target.value})} className="border rounded p-1 outline-none"><option>Size</option>{[...new Set(p.variants.map(v=>v.size))].map(s=><option key={s} value={s}>{s}</option>)}</select>
+                                            <input type="number" placeholder="Qty" className="border rounded p-1 w-12 outline-none" onChange={(e)=> setStockUpdateData({...stockUpdateData, newStock: e.target.value})} />
+                                            <button onClick={() => {
+                                                requestConfirm("Update Stock?", `Update stock for ${p.name}?`, async () => {
+                                                    setStockLoading(true);
+                                                    try {
+                                                        await API.post(`/api/dashboard/admin/update-stock`, { productId: p._id, ...stockUpdateData });
+                                                        showToast("Stock updated!", "success"); setEditingStock(null); refreshData(); 
+                                                    } catch (e) { showToast("Failed to update stock", "error"); }
+                                                    setStockLoading(false);
+                                                });
+                                            }} className="bg-green-100 text-green-700 px-2 py-1 rounded font-bold">{stockLoading ? <Loader2 className="animate-spin" size={12}/> : "Save"}</button>
+                                            <button onClick={()=>setEditingStock(null)} className="text-gray-400"><X size={14}/></button>
+                                        </div>
+                                    ) : (
+                                        <div className="cursor-pointer hover:bg-white/60 p-2 rounded-lg inline-block transition border border-transparent hover:border-gray-200" onClick={() => setEditingStock(p._id)}>
+                                            {p.variants.slice(0, 2).map((v, i) => <span key={i} className="mr-2 text-xs bg-gray-100/80 px-2 py-1 rounded-md text-gray-600 font-medium">{v.color}-{v.size}: <b>{v.stock}</b></span>)}
+                                            <span className="text-indigo-600 text-xs ml-1 font-bold">Edit</span>
+                                        </div>
+                                    )}
+                                </td>
+                                <td className="p-5">
+                                    <button onClick={() => confirmDelete(p._id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-xl transition">
+                                        {actionLoading === p._id ? <Loader2 className="animate-spin" size={20}/> : <Trash2 size={20}/>}
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+            <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
         </div>
-    )
+    );
 }
 
-// 4. ORDER MANAGER
-function OrderManager() {
-    const [orders, setOrders] = useState(initialOrders)
+// ----------------------------------------------------------------------
+// 3. ORDER MANAGER
+// ----------------------------------------------------------------------
+function OrderManager({ orders, refreshData, page, setPage, totalPages, requestConfirm, showToast, loading }) {
+    const [filterStatus, setFilterStatus] = useState('All'); 
+    const [loadingId, setLoadingId] = useState(null); 
+    
+    const handleStatusUpdate = (orderId, newStatus) => {
+        requestConfirm("Update Status?", `Mark Order #${orderId.slice(-6)} as ${newStatus.toUpperCase()}?`, async () => {
+            setLoadingId(orderId); 
+            try { 
+                await API.post(`/api/dashboard/admin/update-order-status`, { orderId, status: newStatus }); 
+                showToast(`Order status changed to ${newStatus}`, "success");
+                refreshData(); 
+            } 
+            catch (error) { showToast("Failed to update status", "error"); }
+            setLoadingId(null); 
+        });
+    };
 
-    const updateStatus = (id, newStatus) => {
-        setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o))
-    }
+    const filteredOrders = orders.filter(order => filterStatus === 'All' ? true : order.orderStatus === filterStatus.toLowerCase());
 
     return (
-        <div className="bg-white rounded-xl border border-zinc-200">
-             {/* Filter Tabs Mockup */}
-             <div className="flex border-b border-zinc-100">
-                <button className="px-6 py-3 border-b-2 border-black font-bold text-sm">All Orders</button>
-                <button className="px-6 py-3 text-zinc-500 hover:text-black font-medium text-sm">New</button>
-                <button className="px-6 py-3 text-zinc-500 hover:text-black font-medium text-sm">Delivered</button>
+        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 shadow-xl overflow-hidden pb-4">
+             <div className="p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                    {['All', 'Delivered', 'Cancelled', 'Pending', 'Confirmed'].map(s => (
+                        <button key={s} onClick={() => setFilterStatus(s)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${filterStatus === s ? 'bg-gray-900 text-white shadow-lg' : 'bg-white/50 hover:bg-white text-gray-600'}`}>{s}</button>
+                    ))}
+                </div>
+                <span className="text-xs text-gray-400 font-bold bg-white/50 px-3 py-1 rounded-full">Page {page} / {totalPages}</span>
              </div>
              
-             <table className="w-full text-left text-sm">
-                <thead className="bg-zinc-50 text-zinc-500 border-b border-zinc-100">
-                    <tr>
-                        <th className="p-4">ID</th>
-                        <th className="p-4">Customer</th>
-                        <th className="p-4">Product</th>
-                        <th className="p-4">Amount</th>
-                        <th className="p-4">Status (Click to Change)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders.map((order) => (
-                        <tr key={order.id} className="border-b border-zinc-50 hover:bg-zinc-50">
-                            <td className="p-4 font-bold">{order.id}</td>
-                            <td className="p-4">{order.customer}</td>
-                            <td className="p-4">{order.product}</td>
-                            <td className="p-4">{order.amount}</td>
-                            <td className="p-4">
-                                <select 
-                                    value={order.status} 
-                                    onChange={(e) => updateStatus(order.id, e.target.value)}
-                                    className={`px-3 py-1 rounded-full text-xs font-bold outline-none cursor-pointer appearance-none
-                                        ${order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 
-                                          order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' : 
-                                          'bg-green-100 text-green-700'}`}
-                                >
-                                    <option value="Pending">Pending</option>
-                                    <option value="Shipped">Shipped</option>
-                                    <option value="Delivered">Delivered</option>
-                                    <option value="Cancelled">Cancelled</option>
-                                </select>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-             </table>
+             <div className="overflow-x-auto">
+                 <table className="w-full text-left text-sm min-w-[700px]">
+                    <thead className="bg-white/50 border-b border-gray-100 text-gray-500 uppercase text-xs">
+                        <tr><th className="p-5">Order Info</th><th className="p-5">Customer</th><th className="p-5">Amount</th><th className="p-5">Payment</th><th className="p-5">Action</th></tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100/50">
+                        {loading ? [...Array(5)].map((_, i) => <TableRowSkeleton key={i} cols={5}/>) : 
+                        filteredOrders.map((order) => (
+                            <tr key={order._id} className="hover:bg-white/40 transition">
+                                <td className="p-5">
+                                    <div className="font-bold text-gray-800 text-base">#{order._id.slice(-6)}</div>
+                                    <div className="text-[11px] text-gray-500 font-medium mt-1 flex items-center gap-1">
+                                        <Clock size={10}/> {format(new Date(order.createdAt), 'EEE, dd MMM • hh:mm a')}
+                                    </div>
+                                </td>
+                                <td className="p-5">
+                                    <div className="font-semibold text-gray-800">{order.userId?.username}</div>
+                                    <div className="text-xs text-gray-400">{order.userId?.email}</div>
+                                </td>
+                                <td className="p-5 font-bold text-gray-700">₹{order.totalAmount}</td>
+                                <td className="p-5">
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                        {order.paymentStatus}
+                                    </span>
+                                </td>
+                                <td className="p-5 flex items-center gap-3">
+                                    {loadingId === order._id && <Loader2 className="animate-spin text-indigo-600" size={16}/>}
+                                    <div className="relative">
+                                        <select 
+                                            value={order.orderStatus} 
+                                            onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                                            disabled={loadingId === order._id}
+                                            className={`p-2 pl-3 pr-8 rounded-xl text-xs font-bold outline-none border cursor-pointer transition disabled:opacity-50 appearance-none shadow-sm ${
+                                                order.orderStatus === 'delivered' ? 'bg-green-50 text-green-700 border-green-200' : 
+                                                order.orderStatus === 'cancelled' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'
+                                            }`}
+                                        >
+                                            <option value="pending">Pending</option>
+                                            <option value="confirmed">Confirmed</option>
+                                            <option value="shipped">Shipped</option>
+                                            <option value="delivered">Delivered</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-2 top-2.5 text-gray-400 pointer-events-none"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                 </table>
+             </div>
+             <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
         </div>
-    )
+    );
 }
 
-// 5. CUSTOMERS & ANALYTICS PLACEHOLDERS
-function CustomerManager() {
-    return <div className="p-10 text-center text-zinc-400">Customer List Implementation Here (Table)</div>
-}
-function AnalyticsView() {
-    return <div className="p-10 text-center text-zinc-400">Graphs & Charts Implementation Here</div>
+// ----------------------------------------------------------------------
+// 4. SETTINGS
+// ----------------------------------------------------------------------
+function SettingsManager({ requestConfirm, showToast }) {
+    const [pincodes, setPincodes] = useState([]);
+    const [newPincode, setNewPincode] = useState({ pincode: '', city: '', state: '' });
+    const [loadingAction, setLoadingAction] = useState(null); 
+    const [loading, setLoading] = useState(true);
+    
+    const fetchPincodes = async () => {
+        try { const res = await API.get('/api/dashboard/admin/all-pincodes'); if(res.data.success) setPincodes(res.data.areas); } catch (e) { console.error(e); } finally { setLoading(false); }
+    };
+    useEffect(() => { fetchPincodes(); }, []);
+
+    const handleAddPincode = async (e) => {
+        e.preventDefault();
+        requestConfirm("Add Pincode?", `Add ${newPincode.pincode}?`, async () => {
+            setLoadingAction('add');
+            try { 
+                await API.post('/api/dashboard/admin/add-pincode', newPincode); 
+                showToast("Pincode added successfully", "success");
+                setNewPincode({ pincode: '', city: '', state: '' }); fetchPincodes(); 
+            } 
+            catch (e) { showToast(e.response?.data?.message || "Error", "error"); }
+            setLoadingAction(null);
+        });
+    };
+
+    const toggleStatus = (pincode, currentStatus) => {
+        requestConfirm(currentStatus ? "Disable?" : "Enable?", `Toggle ${pincode}?`, async () => {
+            setLoadingAction(pincode);
+            try { 
+                await API.post('/api/dashboard/admin/updateDeliveryAvlabelStatus', { pincode, DeliveryAvlabelStatus: !currentStatus }); 
+                showToast("Status updated", "success"); fetchPincodes(); 
+            } 
+            catch (e) { showToast("Update failed", "error"); }
+            setLoadingAction(null);
+        });
+    };
+
+    return (
+        <div className="space-y-6 pb-10">
+            <div className="bg-white/60 backdrop-blur-xl p-8 rounded-3xl shadow-lg border border-white/50">
+                <h3 className="font-bold text-xl mb-6 flex items-center gap-2 text-gray-800"><MapPin size={24} className="text-indigo-500"/> Add Service Area</h3>
+                <form onSubmit={handleAddPincode} className="flex flex-col md:flex-row gap-4 items-end">
+                    <div className="flex-1 w-full"><Input label="Pincode" name="pincode" val={newPincode} set={setNewPincode} /></div>
+                    <div className="flex-1 w-full"><Input label="City" name="city" val={newPincode} set={setNewPincode} /></div>
+                    <div className="flex-1 w-full"><Input label="State" name="state" val={newPincode} set={setNewPincode} /></div>
+                    <button type="submit" disabled={loadingAction === 'add'} className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-900 transition flex items-center gap-2 w-full md:w-auto justify-center shadow-lg">
+                        {loadingAction === 'add' ? <Loader2 className="animate-spin" size={20}/> : "Add"}
+                    </button>
+                </form>
+            </div>
+
+            <div className="bg-white/60 backdrop-blur-xl p-8 rounded-3xl shadow-lg border border-white/50">
+                <h3 className="font-bold text-xl mb-6 text-gray-800">Serviceable Areas</h3>
+                {loading ? <div className="grid grid-cols-3 gap-4">{[...Array(6)].map((_,i)=><Skeleton key={i} className="h-20"/>)}</div> :
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {pincodes.map((area) => (
+                        <div key={area._id} className="border border-white/60 bg-white/40 p-5 rounded-2xl flex justify-between items-center hover:bg-white/80 hover:shadow-md transition">
+                            <div><h4 className="font-bold text-lg text-gray-800">{area.pincode}</h4><p className="text-xs text-gray-500 font-medium">{area.city}, {area.state}</p></div>
+                            <button onClick={() => toggleStatus(area.pincode, area.DeliveryAvlabelStatus)} disabled={loadingAction === area.pincode} className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 transition min-w-[90px] justify-center ${area.DeliveryAvlabelStatus ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {loadingAction === area.pincode ? <Loader2 className="animate-spin" size={12}/> : (area.DeliveryAvlabelStatus ? 'Active' : 'Inactive')}
+                            </button>
+                        </div>
+                    ))}
+                </div>}
+            </div>
+        </div>
+    );
 }
 
-// --- HELPER COMPONENTS ---
+// Helpers
+function PaginationControls({ page, setPage, totalPages }) {
+    if (totalPages <= 1) return null;
+    return (
+        <div className="flex justify-center items-center gap-4 p-4 border-t border-gray-100/50">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-full hover:bg-white hover:shadow-md disabled:opacity-30 text-gray-600 transition"><ChevronLeft size={20}/></button>
+            <span className="text-sm font-bold text-gray-600 bg-white/50 px-3 py-1 rounded-lg">Page {page} / {totalPages}</span>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-full hover:bg-white hover:shadow-md disabled:opacity-30 text-gray-600 transition"><ChevronRight size={20}/></button>
+        </div>
+    );
+}
 function SidebarBtn({ label, icon: Icon, id, activeTab, setTab }) {
     const isActive = activeTab === id;
     return (
-        <button 
-            onClick={() => setTab(id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group
-            ${isActive ? 'bg-zinc-900 text-white shadow-md' : 'text-zinc-600 hover:bg-zinc-100 hover:text-black'}`}
-        >
-            <Icon size={20} className={isActive ? 'text-white' : 'text-zinc-500 group-hover:text-black'} />
-            <span className="font-medium text-sm tracking-wide">{label}</span>
+        <button onClick={() => setTab(id)} className={`w-full flex items-center gap-4 px-6 py-3.5 rounded-2xl transition-all duration-300 font-bold ${isActive ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200 scale-105' : 'text-gray-500 hover:bg-white/60 hover:text-indigo-600'}`}>
+            <Icon size={20} /> <span className="text-sm tracking-wide">{label}</span>
         </button>
-    )
+    );
 }
-
-function StatCard({ title, value, color }) {
+function StatCard({ title, value, icon: Icon, color, isDark }) {
     return (
-        <div className={`p-6 rounded-xl shadow-sm ${color} flex flex-col justify-between h-32`}>
-            <p className="text-sm font-medium opacity-80">{title}</p>
-            <h3 className="text-3xl font-bold">{value}</h3>
+        <div className={`p-6 rounded-3xl shadow-lg flex items-center justify-between h-full transition-all hover:-translate-y-1 duration-300 ${color}`}>
+            <div><p className={`text-xs font-bold uppercase mb-1 tracking-wider ${isDark ? 'opacity-80' : 'text-gray-400'}`}>{title}</p><h3 className="text-3xl font-black">{value}</h3></div>
+            <div className={`p-3 rounded-2xl ${isDark ? 'bg-white/20' : 'bg-gray-100'}`}><Icon size={24} /></div>
         </div>
-    )
+    );
 }
-
-function OrderTable({ orders }) {
+function MiniStatCard({ label, value, icon: Icon, color }) {
     return (
-        <table className="w-full text-left text-sm">
-            <thead className="bg-zinc-50 text-zinc-500">
-                <tr><th className="p-3">Order</th><th className="p-3">Status</th><th className="p-3">Total</th></tr>
-            </thead>
-            <tbody>
-                {orders.map((o, i) => (
-                    <tr key={i} className="border-b border-zinc-100"><td className="p-3">{o.product}</td><td className="p-3">{o.status}</td><td className="p-3">{o.amount}</td></tr>
-                ))}
-            </tbody>
-        </table>
-    )
+        <div className={`p-4 rounded-2xl border border-white/60 bg-white/40 backdrop-blur-sm flex items-center gap-4 shadow-sm hover:shadow-md transition`}>
+            <div className={`p-2.5 rounded-xl ${color}`}><Icon size={20} /></div>
+            <div><p className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">{label}</p><h4 className="text-xl font-bold text-gray-800">{value}</h4></div>
+        </div>
+    );
+}
+function Input({ label, name, type="text", val, set }) {
+    return (
+        <div>
+            <label className="block text-xs font-bold text-gray-500 mb-1 ml-1">{label}</label>
+            <input type={type} className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-200 outline-none bg-white/50 transition shadow-sm" value={val[name]} onChange={(e) => set({...val, [name]: e.target.value})}/>
+        </div>
+    );
 }
 
-export default DashboardPage
+export default DashboardPage;

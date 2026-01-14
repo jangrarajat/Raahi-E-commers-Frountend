@@ -44,8 +44,8 @@ function Navbar() {
 
                     <div className=' hidden md:flex gap-7 mx-5'>
                         <Link to='/product/all' className=' hover:underline uppercase '>All</Link>
-                        <Link to='/product/ladies' className=' hover:underline uppercase '>Ladies</Link>
-                        <Link to='/product/man' className=' hover:underline uppercase '>Man</Link>
+                        <Link to='/product/Women' className=' hover:underline uppercase '>Women</Link>
+                        <Link to='/product/man' className=' hover:underline uppercase '>Men</Link>
                         <Link to='/product/kids' className=' hover:underline uppercase '>Kids</Link>
                     </div>
                 </div>

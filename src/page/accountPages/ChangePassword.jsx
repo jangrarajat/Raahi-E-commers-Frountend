@@ -60,9 +60,7 @@ function ChangePassword() {
                     logout()
                     console.log("error in refreshExpiredtoken", error.response.data.message)
                     throw error
-                } finally {
-
-                }
+                } 
             }
         } finally {
             setChangePasswordLoading(false)
