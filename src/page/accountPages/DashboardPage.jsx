@@ -168,7 +168,7 @@ function DashboardPage() {
             {/* --- SIDEBAR --- */}
             <aside className={`fixed inset-y-0 left-0 z-30 w-64 bg-white/70 backdrop-blur-xl border-r border-white/50 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:shadow-none`}>
                 <div className="h-20 flex items-center justify-center border-b border-white/50">
-                    <h1 className="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 drop-shadow-sm">RAAHI</h1>
+                    <h1 className="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400 drop-shadow-sm">RAAHI</h1>
                 </div>
                 <nav className="p-4 space-y-2 mt-4 flex-1">
                     <SidebarBtn label="Overview" icon={LayoutDashboard} id="dashboard" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
@@ -178,7 +178,7 @@ function DashboardPage() {
                     <SidebarBtn label="Settings" icon={Settings} id="settings" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
                 </nav>
                 <div className="p-4 border-t border-white/50">
-                    <button onClick={() => navigate('/')} className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-white/50 rounded-xl transition-all font-medium">
+                    <button onClick={() => navigate('/account/setting')} className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-white/50 rounded-xl transition-all font-medium">
                         <Home size={18} /> Back to Site
                     </button>
                 </div>
@@ -193,7 +193,7 @@ function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-4">
                         {refreshing && <span className="text-xs font-bold text-indigo-500 animate-pulse bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Updating...</span>}
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">A</div>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-green-500-600 text-white flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">A</div>
                     </div>
                 </header>
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 scroll-smooth">

@@ -15,9 +15,10 @@ import DashboardPage from './page/accountPages/DashboardPage'
 import ChangePassword from './page/accountPages/ChangePassword'
 import ForgetPasswordPage from './page/forgetPasswordPage/ForgetPasswordPage'
 import axios from 'axios'
+import CheckoutPage from './page/CheckoutPage'
 
 function App() {
-  
+
   useEffect(() => {
     const activateDataBase = async () => {
       try {
@@ -48,6 +49,8 @@ function App() {
         <Route path='/account/dashboard' element={<> <DashboardPage /></>} />
         <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /><Footer /></>} />
         <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage /></>} />
+        <Route path='/checkout' element={<><Navbar /> <CheckoutPage/><Footer /></>} />
+        <Route path='/user/orders' element={<><Navbar /> <OrderaPage/><Footer /></>} />
 
       </Routes>
 

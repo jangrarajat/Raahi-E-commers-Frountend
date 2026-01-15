@@ -18,15 +18,15 @@ export const AuthProvider = ({ children }) => {
   const [loginFailedMsg, setLoginFailedMsg] = useState(false)
   const [loginErrorMsg, setLoginErrorMsg] = useState("")
   const [logoutLoading, setLogoutLoading] = useState(false)
- 
-  const navigate = useNavigate()
 
+  const navigate = useNavigate()
+  const BASE_URL = import.meta.env.VITE_API_URL || "";
 
   const login = async (email, password) => {
     setLoginLaoding(true)
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/login`, { email, password }, { withCredentials: true })
+      const res = await axios.post(`${BASE_URL}/api/user/login`, { email, password }, { withCredentials: true })
       console.log("Login ho gaya:", res.data.user);
       setUser(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user))
