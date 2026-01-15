@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { User, Heart, Handbag, Search, Menu } from 'lucide-react'
+import { User, Heart, Handbag, Search, Menu, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Login from './auth/Login'
 import Registration from './auth/Registration'
 import { useNavigate } from 'react-router-dom'
+import { SUB_CATEGORIES } from '../commonData/jsData'
 function Navbar() {
     const navigate = useNavigate()
 
@@ -50,6 +51,8 @@ function Navbar() {
                         <Link to='/product/Accessories' className=' hover:underline uppercase '>Accessories</Link>
 
                     </div>
+
+
                 </div>
                 <div className=' flex w-[50%] items-center justify-end pr-5 gap-5 md:gap-10'>
                     <a href="#"><Search size={17} /></a>
@@ -59,7 +62,22 @@ function Navbar() {
                     {/* <a href="#" className='flex md:hidden'><Menu size={17} /></a> */}
                 </div>
             </div>
-            <div className=' h-16 md:h-20 w-full p-3 relative bg-white'></div>
+            <div className=' h-28 md:h-20 w-full p-3 relative bg-white'></div>
+            {/* phone mode serch filder */}
+            <div
+                className='md:hidden flex gap-7  
+                           justify-center items-center h-10
+                           fixed top-16 bg-white
+                           z-20
+                          w-full  text-black  '>
+                <Link to='/product/all' className=' hover:underline uppercase '>All</Link>
+                <Link to='/product/Women' className=' hover:underline uppercase '>Women</Link>
+                <Link to='/product/Men' className=' hover:underline uppercase '>Men</Link>
+                <Link to='/product/Kids' className=' hover:underline uppercase '>Kids</Link>
+                <Link to='/product/Accessories' className=' hover:underline uppercase '>Accessories</Link>
+                
+            </div>
+
         </>
     )
 }

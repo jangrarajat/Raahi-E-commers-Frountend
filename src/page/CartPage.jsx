@@ -55,7 +55,7 @@ function CartPage() {
 
     return (
         <div className="w-full min-h-screen bg-white flex flex-col md:flex-row p-5 relative">
-            <FilterNav />
+          
             
             <div className='w-full flex flex-col gap-5 md:px-10'>
                 {/* Header Section */}

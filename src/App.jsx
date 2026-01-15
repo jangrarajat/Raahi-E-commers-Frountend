@@ -50,7 +50,7 @@ function App() {
         <Route path='/account/dashboard' element={<> <DashboardPage /></>} />
         <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /><Footer /></>} />
         <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage /></>} />
-        <Route path='/checkout' element={<><Navbar /> <CheckoutPage/><Footer /></>} />
+        <Route path='/checkout' element={<><Navbar /> <CheckoutPage/></>} />
         <Route path='/user/orders' element={<><Navbar /> <OrderaPage/><Footer /></>} />
 
       </Routes>

@@ -11,9 +11,9 @@ function Footer() {
 
         <ul className="flex flex-col gap-2">
           <b className="mb-2 uppercase">Shop</b>
-          <Link className="hover:underline uppercase" to="/product/ladies">Ladies</Link>
-          <Link className="hover:underline uppercase" to="/product/man">Man</Link>
-          <Link className="hover:underline uppercase" to="/product/kids">kids</Link>
+          <Link className="hover:underline uppercase" to="/product/Women">Women</Link>
+          <Link className="hover:underline uppercase" to="/product/Men">Men</Link>
+          <Link className="hover:underline uppercase" to="/product/Kids">kids</Link>
           <a className="hover:underline uppercase">Accessories</a>
         </ul>
 
@@ -35,10 +35,10 @@ function Footer() {
 
         <ul className="flex flex-col gap-2">
           <b className="mb-2 uppercase">Other</b>
-          <a className="hover:underline uppercase">Settings</a>
+          <Link to='/account/setting' className="hover:underline uppercase">Settings</Link>
           <a className="hover:underline uppercase">About</a>
           <a className="hover:underline uppercase">Contact</a>
-          <a className="hover:underline uppercase">Readme More</a>
+          <Link to='/account/orders' className="hover:underline uppercase">Orders</Link>
         </ul>
       </div>
 

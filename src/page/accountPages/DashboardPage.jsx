@@ -30,10 +30,10 @@ const TableRowSkeleton = ({ cols = 4 }) => (
     <tr>{[...Array(cols)].map((_, i) => <td key={i} className="p-4"><Skeleton className="h-6 w-full" /></td>)}</tr>
 );
 
-// --- TOAST NOTIFICATION COMPONENT (NEW) ---
+// --- TOAST NOTIFICATION COMPONENT ---
 const Toast = ({ toast, onClose }) => {
     useEffect(() => {
-        const timer = setTimeout(() => onClose(), 4000); // Auto close after 4s
+        const timer = setTimeout(() => onClose(), 4000); 
         return () => clearTimeout(timer);
     }, [onClose]);
 
@@ -82,7 +82,7 @@ function DashboardPage() {
 
     // --- MODAL & TOAST STATE ---
     const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', action: null });
-    const [toast, setToast] = useState({ show: false, message: '', type: 'info' }); // 'success', 'error', 'info'
+    const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
     // Helper Functions
     const requestConfirm = (title, message, action) => setConfirmModal({ show: true, title, message, action });
@@ -114,7 +114,7 @@ function DashboardPage() {
     };
 
     useEffect(() => { const t = setTimeout(fetchData, 500); return () => clearTimeout(t); }, [timeFilter, orderPage, productPage, productSearch]);
-    useEffect(() => { const i = setInterval(() => fetchData(true), 5000); return () => clearInterval(i); }, [timeFilter, orderPage, productPage]);
+    useEffect(() => { const i = setInterval(() => fetchData(true), 10000); return () => clearInterval(i); }, [timeFilter, orderPage, productPage]);
 
     const renderContent = () => {
         switch (activeTab) {
@@ -162,9 +162,6 @@ function DashboardPage() {
                 </div>
             )}
 
-            {/* --- MOBILE OVERLAY --- */}
-            {isSidebarOpen && <div className="fixed inset-0 bg-black/20 z-20 md:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}></div>}
-
             {/* --- SIDEBAR --- */}
             <aside className={`fixed inset-y-0 left-0 z-30 w-64 bg-white/70 backdrop-blur-xl border-r border-white/50 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:shadow-none`}>
                 <div className="h-20 flex items-center justify-center border-b border-white/50">
@@ -178,7 +175,7 @@ function DashboardPage() {
                     <SidebarBtn label="Settings" icon={Settings} id="settings" activeTab={activeTab} setTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
                 </nav>
                 <div className="p-4 border-t border-white/50">
-                    <button onClick={() => navigate('/account/setting')} className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-white/50 rounded-xl transition-all font-medium">
+                    <button onClick={() => navigate('/')} className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-white/50 rounded-xl transition-all font-medium">
                         <Home size={18} /> Back to Site
                     </button>
                 </div>
@@ -193,7 +190,7 @@ function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-4">
                         {refreshing && <span className="text-xs font-bold text-indigo-500 animate-pulse bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Updating...</span>}
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-green-500-600 text-white flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">A</div>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-green-500 text-white flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">A</div>
                     </div>
                 </header>
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 scroll-smooth">
@@ -208,7 +205,7 @@ function DashboardPage() {
 // 1. DASHBOARD OVERVIEW
 // ----------------------------------------------------------------------
 function DashboardOverview({ stats, orders, timeFilter, setTimeFilter, loading }) {
-    const [showOrderStats, setShowOrderStats] = useState(false); 
+    const [showOrderStats, setShowOrderStats] = useState(true); 
 
     const chartData = useMemo(() => {
         const now = new Date();
@@ -219,6 +216,7 @@ function DashboardOverview({ stats, orders, timeFilter, setTimeFilter, loading }
         else if (timeFilter === 'week') { startDate = subDays(now, 7); formatStr = 'EEE'; }
         else if (timeFilter === 'month') { startDate = startOfMonth(now); formatStr = 'dd MMM'; }
         else if (timeFilter === 'year') { startDate = startOfYear(now); formatStr = 'MMM'; }
+        
         const filteredOrders = orders.filter(o => new Date(o.createdAt) >= startDate);
         filteredOrders.forEach(order => {
             const dateKey = format(new Date(order.createdAt), formatStr);
@@ -249,9 +247,7 @@ function DashboardOverview({ stats, orders, timeFilter, setTimeFilter, loading }
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                 <StatCard title="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-200" isDark />
-                <div onClick={() => setShowOrderStats(!showOrderStats)} className="cursor-pointer transition-all hover:scale-[1.02]">
-                    <StatCard title="Total Orders" value={stats.totalOrders} icon={showOrderStats ? ChevronUp : ChevronDown} color="bg-white/60 backdrop-blur-md text-gray-800 border border-white/60" />
-                </div>
+                <StatCard title="Total Orders" value={stats.totalOrders} icon={ShoppingBag} color="bg-white/60 backdrop-blur-md text-gray-800 border border-white/60" />
                 <StatCard title="Total Products" value={stats.totalProducts} icon={Package} color="bg-white/60 backdrop-blur-md text-gray-800 border border-white/60" />
                 <StatCard title="Total Users" value={stats.totalUsers} icon={Users} color="bg-white/60 backdrop-blur-md text-gray-800 border border-white/60" />
             </div>
@@ -290,15 +286,16 @@ function DashboardOverview({ stats, orders, timeFilter, setTimeFilter, loading }
 }
 
 // ----------------------------------------------------------------------
-// 2. PRODUCT MANAGER
+// 2. PRODUCT MANAGER (Updated for Stock Management)
 // ----------------------------------------------------------------------
 function ProductManager({ products, refreshData, page, setPage, totalPages, search, setSearch, requestConfirm, showToast, loading }) {
     const [isAdding, setIsAdding] = useState(false);
+    
+    // Edit Stock States
     const [editingStock, setEditingStock] = useState(null); 
     const [stockUpdateData, setStockUpdateData] = useState({ color: '', size: '', newStock: '' });
-    
-    const [actionLoading, setActionLoading] = useState(null); 
     const [stockLoading, setStockLoading] = useState(false);
+    const [actionLoading, setActionLoading] = useState(null); 
     
     const [formData, setFormData] = useState({ name: '', description: '', price: '', mrp: '', category: '', subCategory: '', fabric: '' });
     const [variants, setVariants] = useState([{ color: '', size: '', stock: 0 }]);
@@ -322,26 +319,20 @@ function ProductManager({ products, refreshData, page, setPage, totalPages, sear
     const handleAddProduct = async (e) => {
         e.preventDefault();
         const activeImages = imageSlots.filter(img => img !== null);
-        
-        // --- PROFESSIONAL VALIDATION POPUP ---
         if (activeImages.length === 0) { showToast("Please upload at least 1 image", "error"); return; }
-        const totalSize = activeImages.reduce((acc, file) => acc + file.size, 0);
-        if (totalSize > 20 * 1024 * 1024) { showToast("Total image size > 20MB. Please optimize.", "error"); return; }
-
+        
         const data = new FormData();
         Object.keys(formData).forEach(key => data.append(key, formData[key]));
         data.append('variants', JSON.stringify(variants));
         activeImages.forEach(file => data.append('images', file));
 
         setIsUploading(true);
-        setUploadProgress(0);
-
         try {
             await API.post(`/api/dashboard/addNewProduct`, data, { 
                 headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (progressEvent) => setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total))
             });
-            showToast("Product Published Successfully!", "success");
+            showToast("Product Published!", "success");
             setIsAdding(false);
             setFormData({ name: '', description: '', price: '', mrp: '', category: '', subCategory: '', fabric: '' });
             setImageSlots([null,null,null,null,null]); setImagePreviews([null,null,null,null,null]);
@@ -362,7 +353,8 @@ function ProductManager({ products, refreshData, page, setPage, totalPages, sear
 
     return (
         <div className="pb-10">
-            <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+            {/* ... Header and Add Form ... */}
+             <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center w-full md:w-auto">
                     <h3 className="font-bold text-2xl text-gray-800 tracking-tight">Products</h3>
                     <div className="relative w-full md:w-auto group">
@@ -472,57 +464,90 @@ function ProductManager({ products, refreshData, page, setPage, totalPages, sear
                 </div>
             )}
 
-            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 overflow-auto  shadow-xl">
+            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 overflow-auto shadow-xl">
                 <table className="w-full text-left text-sm min-w-[600px]">
                     <thead className="bg-white/50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs">
-                        <tr><th className="p-5">Product</th><th className="p-5">Price</th><th className="p-5">Variants/Stock</th><th className="p-5">Action</th></tr>
+                        <tr>
+                            <th className="p-5">Product Details</th>
+                            <th className="p-5">Price</th>
+                            <th className="p-5">Stock Management</th>
+                            <th className="p-5">Action</th>
+                        </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100/50">
                         {loading ? [...Array(5)].map((_, i) => <TableRowSkeleton key={i} />) : 
-                        products.map((p) => (
-                            <tr key={p._id} className="hover:bg-white/40 transition">
-                                <td className="p-5 font-medium flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-white shadow-sm p-1 border border-gray-100 overflow-hidden">
-                                        <img src={p.images[0]?.url || ''} className="w-full h-full object-cover rounded-lg" alt="" />
-                                    </div>
-                                    <div className="truncate max-w-[180px]">
-                                        <p className="text-gray-900 font-bold">{p.name}</p>
-                                        <p className="text-xs text-gray-500">{p.category}</p>
-                                    </div>
-                                </td>
-                                <td className="p-5 font-semibold text-gray-700">₹{p.price}</td>
-                                <td className="p-5">
-                                    {editingStock === p._id ? (
-                                        <div className="flex gap-2 items-center text-xs animate-in fade-in bg-white/80 p-2 rounded-lg shadow-sm border border-gray-200">
-                                            <select onChange={(e)=> setStockUpdateData({...stockUpdateData, color: e.target.value})} className="border rounded p-1 outline-none"><option>Color</option>{[...new Set(p.variants.map(v=>v.color))].map(c=><option key={c} value={c}>{c}</option>)}</select>
-                                            <select onChange={(e)=> setStockUpdateData({...stockUpdateData, size: e.target.value})} className="border rounded p-1 outline-none"><option>Size</option>{[...new Set(p.variants.map(v=>v.size))].map(s=><option key={s} value={s}>{s}</option>)}</select>
-                                            <input type="number" placeholder="Qty" className="border rounded p-1 w-12 outline-none" onChange={(e)=> setStockUpdateData({...stockUpdateData, newStock: e.target.value})} />
-                                            <button onClick={() => {
-                                                requestConfirm("Update Stock?", `Update stock for ${p.name}?`, async () => {
-                                                    setStockLoading(true);
-                                                    try {
-                                                        await API.post(`/api/dashboard/admin/update-stock`, { productId: p._id, ...stockUpdateData });
-                                                        showToast("Stock updated!", "success"); setEditingStock(null); refreshData(); 
-                                                    } catch (e) { showToast("Failed to update stock", "error"); }
-                                                    setStockLoading(false);
-                                                });
-                                            }} className="bg-green-100 text-green-700 px-2 py-1 rounded font-bold">{stockLoading ? <Loader2 className="animate-spin" size={12}/> : "Save"}</button>
-                                            <button onClick={()=>setEditingStock(null)} className="text-gray-400"><X size={14}/></button>
+                        products.map((p) => {
+                            const totalStock = p.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
+                            const isSoldOut = totalStock === 0;
+
+                            return (
+                                <tr key={p._id} className="hover:bg-white/40 transition">
+                                    <td className="p-5 font-medium flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-white shadow-sm p-1 border border-gray-100 overflow-hidden relative">
+                                            <img src={p.images[0]?.url || ''} className="w-full h-full object-cover rounded-lg" alt="" />
+                                            {isSoldOut && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-[8px] text-white font-bold uppercase">Sold Out</div>}
                                         </div>
-                                    ) : (
-                                        <div className="cursor-pointer hover:bg-white/60 p-2 rounded-lg inline-block transition border border-transparent hover:border-gray-200" onClick={() => setEditingStock(p._id)}>
-                                            {p.variants.slice(0, 2).map((v, i) => <span key={i} className="mr-2 text-xs bg-gray-100/80 px-2 py-1 rounded-md text-gray-600 font-medium">{v.color}-{v.size}: <b>{v.stock}</b></span>)}
-                                            <span className="text-indigo-600 text-xs ml-1 font-bold">Edit</span>
+                                        <div className="truncate max-w-[180px]">
+                                            <p className="text-gray-900 font-bold">{p.name}</p>
+                                            <p className="text-xs text-gray-500">{p.category}</p>
                                         </div>
-                                    )}
-                                </td>
-                                <td className="p-5">
-                                    <button onClick={() => confirmDelete(p._id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-xl transition">
-                                        {actionLoading === p._id ? <Loader2 className="animate-spin" size={20}/> : <Trash2 size={20}/>}
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                    </td>
+                                    <td className="p-5 font-semibold text-gray-700">₹{p.price}</td>
+                                    <td className="p-5">
+                                        {editingStock === p._id ? (
+                                            <div className="flex flex-col gap-2 p-3 bg-white shadow-lg rounded-xl border border-indigo-100 animate-in fade-in z-10 relative">
+                                                <h4 className="text-xs font-bold text-gray-500">Update Stock Level</h4>
+                                                <div className="flex gap-2">
+                                                    <input type="text" placeholder="Color (e.g. Red)" className="border p-1 rounded w-20 text-xs" 
+                                                        onChange={(e)=> setStockUpdateData({...stockUpdateData, color: e.target.value})} 
+                                                        list={`colors-${p._id}`}
+                                                    />
+                                                    <datalist id={`colors-${p._id}`}>{p.variants.map(v=><option key={v.color} value={v.color}/>)}</datalist>
+
+                                                    <select onChange={(e)=> setStockUpdateData({...stockUpdateData, size: e.target.value})} className="border rounded p-1 text-xs outline-none">
+                                                        <option value="">Size</option>
+                                                        {["S", "M", "L", "XL", "XXL"].map(s=><option key={s} value={s}>{s}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="flex gap-2 items-center">
+                                                    <input type="number" placeholder="New Qty" className="border rounded p-1 w-20 text-xs outline-none" onChange={(e)=> setStockUpdateData({...stockUpdateData, newStock: e.target.value})} />
+                                                    <button onClick={() => {
+                                                        requestConfirm("Update Stock?", `Update ${stockUpdateData.color}-${stockUpdateData.size} to ${stockUpdateData.newStock}?`, async () => {
+                                                            setStockLoading(true);
+                                                            try {
+                                                                await API.post(`/api/dashboard/admin/update-stock`, { productId: p._id, ...stockUpdateData });
+                                                                showToast("Stock updated!", "success"); setEditingStock(null); refreshData(); 
+                                                            } catch (e) { showToast("Failed", "error"); }
+                                                            setStockLoading(false);
+                                                        });
+                                                    }} className="bg-black text-white px-3 py-1 rounded text-xs font-bold flex-1">{stockLoading ? "..." : "Save"}</button>
+                                                </div>
+                                                <button onClick={()=>setEditingStock(null)} className="text-xs text-red-500 underline text-center">Cancel</button>
+                                            </div>
+                                        ) : (
+                                            <div onClick={() => setEditingStock(p._id)} className="cursor-pointer group">
+                                                {totalStock === 0 ? (
+                                                    <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-200">Sold Out (0)</span>
+                                                ) : (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {p.variants.slice(0, 3).map((v, i) => (
+                                                            <span key={i} className={`text-[10px] px-2 py-1 rounded border ${v.stock < 5 ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
+                                                                {v.color}-{v.size}: <b>{v.stock}</b>
+                                                            </span>
+                                                        ))}
+                                                        {p.variants.length > 3 && <span className="text-[10px] text-gray-400">+{p.variants.length - 3} more</span>}
+                                                    </div>
+                                                )}
+                                                <p className="text-[10px] text-indigo-500 font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Click to manage stock</p>
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="p-5">
+                                        <button onClick={() => confirmDelete(p._id)} className="text-gray-400 hover:text-red-500 transition"><Trash2 size={18}/></button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -532,7 +557,7 @@ function ProductManager({ products, refreshData, page, setPage, totalPages, sear
 }
 
 // ----------------------------------------------------------------------
-// 3. ORDER MANAGER
+// 3. ORDER MANAGER (Updated to Show Packing Details)
 // ----------------------------------------------------------------------
 function OrderManager({ orders, refreshData, page, setPage, totalPages, requestConfirm, showToast, loading }) {
     const [filterStatus, setFilterStatus] = useState('All'); 
@@ -557,7 +582,7 @@ function OrderManager({ orders, refreshData, page, setPage, totalPages, requestC
         <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 shadow-xl overflow-hidden pb-4">
              <div className="p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
                 <div className="flex gap-2 overflow-x-auto pb-1">
-                    {['All', 'Delivered', 'Cancelled', 'Pending', 'Confirmed'].map(s => (
+                    {['All', 'Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'].map(s => (
                         <button key={s} onClick={() => setFilterStatus(s)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${filterStatus === s ? 'bg-gray-900 text-white shadow-lg' : 'bg-white/50 hover:bg-white text-gray-600'}`}>{s}</button>
                     ))}
                 </div>
@@ -565,49 +590,83 @@ function OrderManager({ orders, refreshData, page, setPage, totalPages, requestC
              </div>
              
              <div className="overflow-x-auto">
-                 <table className="w-full text-left text-sm min-w-[700px]">
+                 <table className="w-full text-left text-sm min-w-[900px]">
                     <thead className="bg-white/50 border-b border-gray-100 text-gray-500 uppercase text-xs">
-                        <tr><th className="p-5">Order Info</th><th className="p-5">Customer</th><th className="p-5">Amount</th><th className="p-5">Payment</th><th className="p-5">Action</th></tr>
+                        <tr>
+                            <th className="p-5">Order ID / Date</th>
+                            <th className="p-5">Packing Details (Items)</th>
+                            <th className="p-5">Customer</th>
+                            <th className="p-5">Amount</th>
+                            <th className="p-5">Status / Action</th>
+                        </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100/50">
                         {loading ? [...Array(5)].map((_, i) => <TableRowSkeleton key={i} cols={5}/>) : 
                         filteredOrders.map((order) => (
                             <tr key={order._id} className="hover:bg-white/40 transition">
-                                <td className="p-5">
+                                {/* Order ID */}
+                                <td className="p-5 align-top">
                                     <div className="font-bold text-gray-800 text-base">#{order._id.slice(-6)}</div>
                                     <div className="text-[11px] text-gray-500 font-medium mt-1 flex items-center gap-1">
-                                        <Clock size={10}/> {format(new Date(order.createdAt), 'EEE, dd MMM • hh:mm a')}
+                                        <Clock size={10}/> {format(new Date(order.createdAt), 'dd MMM, hh:mm a')}
                                     </div>
-                                </td>
-                                <td className="p-5">
-                                    <div className="font-semibold text-gray-800">{order.userId?.username}</div>
-                                    <div className="text-xs text-gray-400">{order.userId?.email}</div>
-                                </td>
-                                <td className="p-5 font-bold text-gray-700">₹{order.totalAmount}</td>
-                                <td className="p-5">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                        {order.paymentStatus}
+                                    <span className={`mt-2 inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                                        {order.paymentMethod}
                                     </span>
                                 </td>
-                                <td className="p-5 flex items-center gap-3">
-                                    {loadingId === order._id && <Loader2 className="animate-spin text-indigo-600" size={16}/>}
-                                    <div className="relative">
-                                        <select 
-                                            value={order.orderStatus} 
-                                            onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                                            disabled={loadingId === order._id}
-                                            className={`p-2 pl-3 pr-8 rounded-xl text-xs font-bold outline-none border cursor-pointer transition disabled:opacity-50 appearance-none shadow-sm ${
-                                                order.orderStatus === 'delivered' ? 'bg-green-50 text-green-700 border-green-200' : 
-                                                order.orderStatus === 'cancelled' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'
-                                            }`}
-                                        >
-                                            <option value="pending">Pending</option>
-                                            <option value="confirmed">Confirmed</option>
-                                            <option value="shipped">Shipped</option>
-                                            <option value="delivered">Delivered</option>
-                                            <option value="cancelled">Cancelled</option>
-                                        </select>
-                                        <ChevronDown size={14} className="absolute right-2 top-2.5 text-gray-400 pointer-events-none"/>
+
+                                {/* Packing Details (Updated) */}
+                                <td className="p-5 align-top">
+                                    <div className="flex flex-col gap-2">
+                                        {order.items.map((item, idx) => (
+                                            <div key={idx} className="flex gap-3 items-center bg-white/60 p-2 rounded-lg border border-gray-100 shadow-sm">
+                                                <img src={item.productId?.images?.[0]?.url || ''} className="w-10 h-10 rounded object-cover" alt="img" />
+                                                <div className="flex-1">
+                                                    <p className="font-bold text-xs text-gray-800 line-clamp-1">{item.productId?.name}</p>
+                                                    <div className="flex gap-2 text-[11px] text-gray-600 mt-0.5">
+                                                        <span className="bg-gray-100 px-1.5 rounded border border-gray-200">Size: <b>{item.size}</b></span>
+                                                        <span className="bg-gray-100 px-1.5 rounded border border-gray-200">Color: <b>{item.color}</b></span>
+                                                        <span className="bg-indigo-50 text-indigo-700 px-1.5 rounded border border-indigo-100">Qty: <b>{item.quantity}</b></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </td>
+
+                                {/* Customer Info */}
+                                <td className="p-5 align-top">
+                                    <div className="font-semibold text-gray-800 text-xs">{order.userId?.username}</div>
+                                    <div className="text-[11px] text-gray-500 break-words max-w-[150px]">{order.userId?.email}</div>
+                                    <div className="mt-2 text-[11px] text-gray-600 bg-gray-50 p-1.5 rounded border">
+                                        {order.addressId?.city}, {order.addressId?.state}<br/>
+                                        <b>PIN: {order.addressId?.pincode}</b>
+                                    </div>
+                                </td>
+
+                                <td className="p-5 align-top font-bold text-gray-700">₹{order.totalAmount}</td>
+
+                                <td className="p-5 align-top">
+                                    <div className="flex flex-col gap-2">
+                                        {loadingId === order._id && <div className="text-center"><Loader2 className="animate-spin text-indigo-600" size={16}/></div>}
+                                        <div className="relative">
+                                            <select 
+                                                value={order.orderStatus} 
+                                                onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                                                disabled={loadingId === order._id}
+                                                className={`w-full p-2 pl-3 pr-8 rounded-xl text-xs font-bold outline-none border cursor-pointer transition disabled:opacity-50 appearance-none shadow-sm ${
+                                                    order.orderStatus === 'delivered' ? 'bg-green-50 text-green-700 border-green-200' : 
+                                                    order.orderStatus === 'cancelled' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'
+                                                }`}
+                                            >
+                                                <option value="pending">Pending</option>
+                                                <option value="confirmed">Confirmed</option>
+                                                <option value="shipped">Shipped</option>
+                                                <option value="delivered">Delivered</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                            <ChevronDown size={14} className="absolute right-2 top-2.5 text-gray-400 pointer-events-none"/>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -621,7 +680,7 @@ function OrderManager({ orders, refreshData, page, setPage, totalPages, requestC
 }
 
 // ----------------------------------------------------------------------
-// 4. SETTINGS
+// 4. SETTINGS (Unchanged)
 // ----------------------------------------------------------------------
 function SettingsManager({ requestConfirm, showToast }) {
     const [pincodes, setPincodes] = useState([]);
@@ -692,7 +751,7 @@ function SettingsManager({ requestConfirm, showToast }) {
     );
 }
 
-// Helpers
+// Helper Components
 function PaginationControls({ page, setPage, totalPages }) {
     if (totalPages <= 1) return null;
     return (
