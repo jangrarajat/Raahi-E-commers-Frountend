@@ -251,7 +251,7 @@ function CheckoutPage() {
 
     const fetchAddresses = async () => {
         try {
-            const res = await axios.get(`${BASE_URL}/address/get-all-address`, { withCredentials: true });
+            const res = await axios.get(`${BASE_URL}/api/address/get-all-address`, { withCredentials: true });
             if (res.data.success) {
                 setAddresses(res.data.addresses);
                 const def = res.data.addresses.find(a => a.isDefault);
@@ -268,7 +268,7 @@ function CheckoutPage() {
         }
         setLoading(true);
         try {
-            await axios.post(`${BASE_URL}/address/add-address`, formData, { withCredentials: true });
+            await axios.post(`${BASE_URL}/api/address/add-address`, formData, { withCredentials: true });
             setIsAddingNew(false);
             setFormData({ fullName: "", phone: "", altPhone: "", pincode: "", state: "", city: "", houseNo: "", area: "", landmark: "", type: "Home" });
             fetchAddresses();
