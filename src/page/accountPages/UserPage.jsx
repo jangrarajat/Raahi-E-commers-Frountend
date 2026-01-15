@@ -22,6 +22,7 @@ function UserPage() {
                         Account&<br /> Rewards
                     </h1>
                 </div>
+                
                 <div className='md:w-[50%] min-h-44 bg-orange-500 flex flex-col md:flex-row '>
                     <div className='w-[100%] md:w-[50%] h-[60vh] md:h-[40vh] bg-pink-500 bg-cover'
                         style={{ backgroundImage: `url('https://i.pinimg.com/736x/86/57/97/8657978ee113d8a786501cceff4dc049.jpg')` }}

@@ -7,7 +7,7 @@ function AccountMenuBar() {
 
 
     return (
-        <div className=' w-full  md:w-[30%] min-h-[60vh] font-sans p-10 flex flex-col gap-5 '>
+        <div className=' hidden w-full  md:w-[30%] min-h-[60vh] font-sans p-10 md:flex flex-col gap-5 '>
             <div>
                 <div className='mb-5'>
                     <h1>Welcome , {user?.email} </h1>

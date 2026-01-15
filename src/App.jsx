@@ -42,16 +42,16 @@ function App() {
         <Route path='/' element={<> <Navbar /><Home /> <Footer /></>} />
         <Route path="/product/:id" element={<><Navbar /><ProductPage /></>} />
         <Route path="/product/details/:id" element={<><Navbar /><SingleProduct /></>} />
-        <Route path='/user' element={<><Navbar /><UserPage /><Footer /></>} />
+        <Route path='/user' element={<><Navbar /><UserPage /></>} />
         <Route path='/cart' element={<><Navbar /> <CartPage /><Footer /></>} />
         <Route path='/like' element={<><Navbar /> <LikePage /><Footer /></>} />
-        <Route path='/account/setting' element={<><Navbar /> <AccountSettingsPage /><Footer /></>} />
-        <Route path='/account/orders' element={<><Navbar /> <OrderaPage /><Footer /></>} />
+        <Route path='/account/setting' element={<><Navbar /> <AccountSettingsPage /></>} />
+        <Route path='/account/orders' element={<><Navbar /> <OrderaPage /></>} />
         <Route path='/account/dashboard' element={<> <DashboardPage /></>} />
         <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /><Footer /></>} />
         <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage /></>} />
         <Route path='/checkout' element={<><Navbar /> <CheckoutPage/></>} />
-        <Route path='/user/orders' element={<><Navbar /> <OrderaPage/><Footer /></>} />
+        <Route path='/user/orders' element={<><Navbar /> <OrderaPage/></>} />
 
       </Routes>
 
