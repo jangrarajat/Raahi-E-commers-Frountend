@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import {
     User, Heart, Handbag, Search, Menu, X, ChevronRight, Clock, Trash2, ArrowRight,
-    Box, MapPin, Settings, Key, LogOut, LayoutDashboard
+    Box, MapPin, Settings, Key, LogOut, LayoutDashboard,
+    User2
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -227,14 +228,12 @@ function Navbar() {
                     ) : (
                         <div className='flex items-center gap-5 md:gap-8'>
                             <button onClick={toggleSearch}><Search size={20} className='stroke-1' /></button>
-                            <div onClick={showUser} className='cursor-pointer hidden md:block'>
+                            <div onClick={showUser} className='cursor-pointer block'>
                                 <User size={20} className='stroke-1' />
                             </div>
                             <Link to='/like'><Heart size={20} className='stroke-1' /></Link>
                             <Link to='/cart'><Handbag size={20} className='stroke-1' /></Link>
-                            <button onClick={toggleMenu} className='flex md:hidden z-50'>
-                                <Menu size={24} />
-                            </button>
+                           
                         </div>
                     )}
                 </div>
@@ -324,30 +323,7 @@ function Navbar() {
 
                 <div className="p-5 flex flex-col gap-6 overflow-y-auto h-[calc(100vh-80px)] pb-20">
 
-                    {/* 1. User Info Header */}
-                    <div>
-                        {user ? (
-                            <div className='flex flex-col gap-1 bg-gray-50 p-4 rounded-lg'>
-                                <h2 className='text-2xl font-bold uppercase'>
-                                    Hi, {user?.username || user?.name || 'User'}
-                                </h2>
-                                <p className='text-gray-500 text-sm mb-3'>Welcome back</p>
-                                <Link to='/user' onClick={toggleMenu} className='text-orange-600 font-semibold text-sm flex items-center gap-1'>
-                                    View Full Profile <ArrowRight size={14} />
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className='flex flex-col gap-3'>
-                                <h2 className='text-2xl font-bold uppercase'>Welcome</h2>
-                                <button
-                                    onClick={() => { setShowAuth(true); toggleMenu(); }}
-                                    className='bg-black text-white py-3 px-4 w-full text-center uppercase text-sm tracking-widest font-bold'
-                                >
-                                    Login / Register
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                   
 
                     {/* 2. ADMIN DASHBOARD LINK (Only for Admin/Owner) */}
                     {/* Logic: Check if user role is admin or owner */}
@@ -363,31 +339,7 @@ function Navbar() {
                     {user && (
                         <div className='mt-2'>
                             <h3 className='text-gray-400 uppercase text-xs tracking-widest mb-4 font-bold'>My Account</h3>
-                            <div className='flex flex-col gap-2'>
-                                {
-                                    user?.role === "owner" ? (<Link to='/account/dashboard' onClick={toggleMenu} className='flex items-center gap-4 py-2 hover:bg-gray-50 rounded-lg px-2 text-gray-700 font-medium'>
-                                        <LayoutDashboard size={20} /> Dashboard
-                                    </Link>) : null
-                                }
-                                <Link to='/user/orders' onClick={toggleMenu} className='flex items-center gap-4 py-2 hover:bg-gray-50 rounded-lg px-2 text-gray-700 font-medium'>
-                                    <Box size={20} /> Orders
-                                </Link>
-                                <Link to='/account/setting' onClick={toggleMenu} className='flex items-center gap-4 py-2 hover:bg-gray-50 rounded-lg px-2 text-gray-700 font-medium'>
-                                    <MapPin size={20} /> Addresses
-                                </Link>
-                                <Link to='/account/setting' onClick={toggleMenu} className='flex items-center gap-4 py-2 hover:bg-gray-50 rounded-lg px-2 text-gray-700 font-medium'>
-                                    <Settings size={20} /> Settings
-                                </Link>
-                                {/* Reset Password Option */}
-                                <Link to='/account/changepassword' onClick={toggleMenu} className='flex items-center gap-4 py-2 hover:bg-gray-50 rounded-lg px-2 text-gray-700 font-medium'>
-                                    <Key size={20} /> Reset Password
-                                </Link>
-
-                                {/* Logout Button */}
-                                <button onClick={handleLogout} className='flex items-center gap-4 py-2 hover:bg-red-50 rounded-lg px-2 text-red-600 font-medium mt-2 w-full text-left'>
-                                    <LogOut size={20} /> Logout
-                                </button>
-                            </div>
+                            
                         </div>
                     )}
                     {/* 3. SHOP Categories */}

@@ -43,12 +43,12 @@ function App() {
         <Route path="/product/:id" element={<><Navbar /><ProductPage /></>} />
         <Route path="/product/details/:id" element={<><Navbar /><SingleProduct /></>} />
         <Route path='/user' element={<><Navbar /><UserPage /></>} />
-        <Route path='/cart' element={<><Navbar /> <CartPage /><Footer /></>} />
-        <Route path='/like' element={<><Navbar /> <LikePage /><Footer /></>} />
+        <Route path='/cart' element={<><Navbar /> <CartPage /></>} />
+        <Route path='/like' element={<><Navbar /> <LikePage /></>} />
         <Route path='/account/setting' element={<><Navbar /> <AccountSettingsPage /></>} />
         <Route path='/account/orders' element={<><Navbar /> <OrderaPage /></>} />
-        <Route path='/account/dashboard' element={<> <DashboardPage /></>} />
-        <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /><Footer /></>} />
+        <Route path='/account/dashboard' element={<><Navbar/> <DashboardPage /></>} />
+        <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /></>} />
         <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage /></>} />
         <Route path='/checkout' element={<><Navbar /> <CheckoutPage/></>} />
         <Route path='/user/orders' element={<><Navbar /> <OrderaPage/></>} />
