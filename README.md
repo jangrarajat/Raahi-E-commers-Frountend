@@ -46,6 +46,8 @@ A modern, high-performance e-commerce frontend built with **React.js** and **Tai
 ![Order Page](https://res.cloudinary.com/drrj8rl9n/image/upload/v1768710833/Screenshot_2026-01-18_100055_efybtc.png)
 ### Delivery Status Page
 ![Delivery Status Page](https://res.cloudinary.com/drrj8rl9n/image/upload/v1768710822/Screenshot_2026-01-18_100110_et3zj0.png)
+### Dashboard Page
+![Dashboard Page](https://res.cloudinary.com/drrj8rl9n/image/upload/v1768710823/Screenshot_2026-01-18_100210_neeql8.png)
 ### Products managment Page
 ![Products managment Page](https://res.cloudinary.com/drrj8rl9n/image/upload/v1768710823/Screenshot_2026-01-18_100229_wl6cml.png)
 ### Order managment Page
@@ -74,8 +76,7 @@ A modern, high-performance e-commerce frontend built with **React.js** and **Tai
     VITE_API_URL=http://localhost:5000
     ```
 
-4.  **Run the Project**### Dashboard Page
-![Dashboard Page](https://res.cloudinary.com/drrj8rl9n/image/upload/v1768710823/Screenshot_2026-01-18_100210_neeql8.png)
+4.  **Run the Project**
 
     ```bash
     npm run dev
