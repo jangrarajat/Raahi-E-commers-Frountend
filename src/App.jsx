@@ -51,7 +51,7 @@ function App() {
         <Route path='/account/changepassword' element={<><Navbar /> <ChangePassword /></>} />
         <Route path='/forget/password' element={<><Navbar /> <ForgetPasswordPage /></>} />
         <Route path='/checkout' element={<><Navbar /> <CheckoutPage/></>} />
-        <Route path='/user/orders' element={<><Navbar /> <OrderaPage/></>} />
+        
 
       </Routes>
 

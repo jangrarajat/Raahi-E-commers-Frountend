@@ -27,7 +27,7 @@ function UserPage() {
                     </h1>
                     <h1 className=' mt-5 px-5 font-sans uppercase'>{user.username}</h1>
                     <h1 className=' mt-1 px-5 font-sans '>{user.email}</h1>
-                    <h1 className=' mt-2 px-5 font-sans uppercase'><span className='mr-3'>user id :</span>{user._id}</h1>
+                    <h1 className=' mt-2 px-5 font-sans uppercase'><span className='mr-3'>user id:</span>[{user._id}]</h1>
                 </div>
 
                 <div className=' md:hidden grid grid-flow-row grid-cols-2     my-5 rounded-md p-5 gap-2'>

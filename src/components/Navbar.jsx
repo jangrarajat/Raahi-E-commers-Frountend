@@ -79,16 +79,16 @@ function Navbar() {
                     }
                 } catch (error) {
                     console.error("Search Error", error);
-                    const errorMessage = error.response?.data?.message; // Ye line zaroori hai error padhne ke liye
+                    const errorMessage = error.response?.data?.message; 
 
                     if (errorMessage === "jwt expired" || errorMessage === "UnAuthroize request") {
                         // Make sure refreshExpriedToken context me defined ho
-                        const refresh = await refreshExpriedToken();
-                        if (refresh) {
-                            handleSearchChange(); // ID paas karna zaroori hai retry ke liye
-                        } else {
-                            return navigate('/')
-                        }
+                        // const refresh = await refreshExpriedToken();
+                        // if (refresh) {
+                        //     handleSearchChange(e); 
+                        // } else {
+                        //     return navigate('/')
+                        // }
                     }
                 } finally {
                     setLoading(false);
@@ -99,12 +99,14 @@ function Navbar() {
         }
     };
 
+    // --- UPDATED NAVIGATION LOGIC ---
     const handleSelectProduct = (product) => {
         addToHistory(product.name);
         setIsSearchOpen(false);
         setIsMenuOpen(false);
-        // Search Results Page par bhejo
-        navigate(`/product/all?search=${encodeURIComponent(product.name)}`);
+        
+        // Change: Ab ye seedha details page par le jayega
+        navigate(`/product/details/${product._id}`);
     }
 
     const handleSearchSubmit = (e) => {
@@ -155,15 +157,16 @@ function Navbar() {
                                 <Link to='/product/all' className='hover:underline uppercase text-sm'>All</Link>
                                 <Link to='/product/Women' className='hover:underline uppercase text-sm'>Women</Link>
                                 <Link to='/product/Men' className='hover:underline uppercase text-sm'>Men</Link>
+                                <Link to='/product/Kids' className='hover:underline uppercase text-sm'>Kids</Link>
                             </>
                         )}
                     </div>
                 </div>
 
-                <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'w-[100%] md:w-[80%]' : 'w-[50%]'}`}>
+                <div className={` flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'w-[100%] md:w-[80%]' : 'w-[50%]'}`}>
 
                     {isSearchOpen ? (
-                        <div className="relative w-full flex items-center gap-2">
+                        <div className="relative w-full flex items-center right-[10%] gap-2">
                             <form onSubmit={handleSearchSubmit} className="flex-1 relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                                 <input
@@ -192,6 +195,7 @@ function Navbar() {
                                 {!loading && searchResults.length > 0 && (
                                     <div className="p-2">
                                         <h3 className="text-xs font-bold text-gray-400 uppercase mb-2 px-2">Suggestions</h3>
+                                        {/* FIX: Link wrapper removed to rely on handleSelectProduct for navigation, and 'item' replaced with 'prod' */}
                                         {searchResults.map((prod) => (
                                             <div key={prod._id} onClick={() => handleSelectProduct(prod)} className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer rounded-md">
                                                 {prod.images && prod.images[0] && (
@@ -204,6 +208,7 @@ function Navbar() {
                                             </div>
                                         ))}
                                     </div>
+                                    
                                 )}
                                 {/* Desktop History (Only if no results) */}
                                 {!loading && searchResults.length === 0 && searchHistory.length > 0 && (
@@ -233,7 +238,7 @@ function Navbar() {
                             </div>
                             <Link to='/like'><Heart size={20} className='stroke-1' /></Link>
                             <Link to='/cart'><Handbag size={20} className='stroke-1' /></Link>
-                           
+
                         </div>
                     )}
                 </div>
@@ -323,7 +328,7 @@ function Navbar() {
 
                 <div className="p-5 flex flex-col gap-6 overflow-y-auto h-[calc(100vh-80px)] pb-20">
 
-                   
+
 
                     {/* 2. ADMIN DASHBOARD LINK (Only for Admin/Owner) */}
                     {/* Logic: Check if user role is admin or owner */}
@@ -339,7 +344,7 @@ function Navbar() {
                     {user && (
                         <div className='mt-2'>
                             <h3 className='text-gray-400 uppercase text-xs tracking-widest mb-4 font-bold'>My Account</h3>
-                            
+
                         </div>
                     )}
                     {/* 3. SHOP Categories */}

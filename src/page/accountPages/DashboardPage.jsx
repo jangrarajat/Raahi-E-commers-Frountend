@@ -15,7 +15,7 @@ import { format, subDays, startOfMonth, startOfYear } from 'date-fns';
 // --- CONSTANTS ---
 const CATEGORIES = ["Men", "Women", "Kids", "Accessories"];
 const SUB_CATEGORIES = [
-    "T-Shirt", "Shirt", "Jeans", "Trousers", "Shorts", "Joggers", "Track Pants",
+    "T-Shirt", "Shirt", "Jeans", "Trousers", "Shorts", "Joggers", "Track Pants","Top & Shorts Set","2-Piece Set","Co-ord Set","Clothing Set",
     "Kurta", "Kurti", "Saree", "Lehenga", "Salwar Suit", "Sherwani",
     "Dress", "Top", "Tunic", "Skirt", "Jumpsuit", "Gown",
     "Jacket", "Hoodie", "Sweatshirt", "Blazer", "Coat", "Sweater",
