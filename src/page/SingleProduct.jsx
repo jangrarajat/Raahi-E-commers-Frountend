@@ -297,10 +297,10 @@ function SingleProduct() {
                     </h2>
                     
                     {/* Horizontal Slider Container */}
-                    <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 scroll-smooth [&::-webkit-scrollbar]:hidden">
+                    <div className="flex h-fit gap-4 md:gap-6 overflow-x-auto pb-6 scroll-smooth [&::-webkit-scrollbar]:hidden">
                         {xRelatedProducts.map((item) => (
-                            <Link to={`/product/details/${item._id}`} key={item._id} className="min-w-[160px] md:min-w-[240px] group cursor-pointer block flex-shrink-0">
-                                <div className="w-full h-56 md:h-72 bg-gray-50 overflow-hidden rounded-md relative border border-gray-100">
+                            <Link to={`/product/details/${item._id}`} key={item._id} className="min-w-[160px]  md:min-w-[240px] group cursor-pointer block flex-shrink-0">
+                                <div className="w-full h-56 md:h-72 bg-gray-50 overflow-hidden  relative border border-gray-100">
                                     <img 
                                         src={getSafeImageUrl(item.images?.[0] || item.imageUrl)} 
                                         alt={item.name} 
@@ -320,6 +320,7 @@ function SingleProduct() {
                     </div>
                 </div>
             )}
+            
 
             {/* ============================================================ */}
             {/* PART 2: Y-SCROLL (Grid) - Showing ENDING Products (Difference) */}

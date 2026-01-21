@@ -320,7 +320,7 @@ function CheckoutPage() {
             const res = await axios.post(`${BASE_URL}/api/order/place-order`, payload, { withCredentials: true });
             if (res.data.success) {
                 showToast("Order Placed Successfully!", "success");
-                setTimeout(() => navigate('/user/orders'), 1000);
+                setTimeout(() => navigate('/account/orders'), 1000);
             }
         } catch (error) {
             showToast(error.response?.data?.message || "Order Failed", "error");
